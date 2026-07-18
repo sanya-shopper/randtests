@@ -22,12 +22,13 @@ import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 
 const ROOT = resolve(dirname(new URL(import.meta.url).pathname), "..");
+const SITE = join(ROOT, "docs"); // the GitHub Pages folder (probsim layout)
 
-const htmlFiles = readdirSync(ROOT).filter((f) => f.endsWith(".html"));
-const vizDir = join(ROOT, "assets", "js", "viz");
+const htmlFiles = readdirSync(SITE).filter((f) => f.endsWith(".html"));
+const vizDir = join(SITE, "assets", "js", "viz");
 const vizModules = readdirSync(vizDir).filter((f) => f.endsWith(".js"));
 const pages = Object.fromEntries(
-  htmlFiles.map((f) => [f, readFileSync(join(ROOT, f), "utf8")]),
+  htmlFiles.map((f) => [f, readFileSync(join(SITE, f), "utf8")]),
 );
 const readme = readFileSync(join(ROOT, "README.md"), "utf8");
 
@@ -46,7 +47,7 @@ test("internal links, stylesheets and module imports resolve", () => {
       const [path] = ref.split("#");
       if (path === "") continue; // same-page fragment
       assert.ok(
-        existsSync(join(ROOT, path)),
+        existsSync(join(SITE, path)),
         `${file}: broken reference ${ref}`,
       );
     }

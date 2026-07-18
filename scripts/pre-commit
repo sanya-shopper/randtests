@@ -1,0 +1,13 @@
+#!/bin/sh
+# pre-commit — refuse commits that break the docs↔source sync checks.
+#
+# Install with:  make install-hooks
+#
+# This is the randtests analogue of probsim's stale-PDF guard: here the
+# invariants are structural (every link resolves, every citation hits a
+# bibliography entry, every page and module is documented in README.md),
+# and tests/check-site.mjs + tests/stats.test.mjs enforce them.
+
+set -e
+echo "pre-commit: running make test"
+make test

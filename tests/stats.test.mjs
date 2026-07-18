@@ -14,8 +14,8 @@ import assert from "node:assert/strict";
 
 import {
   lnGamma, gammaP, chi2PValue, chiSquareTest, entStats, histogram01,
-} from "../assets/js/stats.js";
-import { randu, mulberry32, biasedBits, weakLcg24 } from "../assets/js/prng.js";
+} from "../docs/assets/js/stats.js";
+import { randu, mulberry32, biasedBits, weakLcg24 } from "../docs/assets/js/prng.js";
 
 const close = (a, b, eps = 1e-9) =>
   assert.ok(Math.abs(a - b) < eps, `expected ${a} ≈ ${b} (±${eps})`);
