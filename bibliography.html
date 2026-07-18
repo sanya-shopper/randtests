@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bibliography — Testing Randomness</title>
+<meta name="description" content="All sources cited across the site, with links: primary papers, standards, and suite documentation for randomness testing of PRNGs and hash functions.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="classical.html">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html">Diehard</a>
+      <a href="dieharder.html">Dieharder</a>
+      <a href="nist-sts.html">NIST STS</a>
+      <a href="testu01.html">TestU01</a>
+      <a href="practrand.html">PractRand</a>
+      <a href="ent.html">ENT</a>
+      <a href="other-suites.html">Others</a>
+      <a href="hashing.html">Hash functions</a>
+      <a href="bibliography.html" aria-current="page">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>Bibliography</h1>
+<p class="lede">Every source cited on this site. In-text citations such as
+<a class="cite" href="#knuth1997">[Knuth 1997]</a> link to the entries
+below. Where a publication is paywalled, the link points at the publisher's
+record or a stable open copy.</p>
+
+<dl class="bib">
+
+<dt id="appleby-smhasher">[Appleby] Appleby, A.</dt>
+<dd><em>SMHasher</em> — test suite for non-cryptographic hash functions
+(avalanche, differential, keyset and distribution tests), ~2010.
+<a href="https://github.com/aappleby/smhasher/wiki/SMHasher">github.com/aappleby/smhasher</a></dd>
+
+<dt id="aumasson2012">[Aumasson &amp; Bernstein 2012] Aumasson, J.-P., Bernstein, D. J.</dt>
+<dd>"SipHash: a fast short-input PRF." <em>Progress in Cryptology —
+INDOCRYPT 2012</em>, LNCS 7668, Springer, pp. 489–508.
+DOI 10.1007/978-3-642-34931-7_28. Includes the seed-independent collisions
+for MurmurHash2/3 and CityHash64 presented with M. Boßlet as "Hash-flooding
+DoS reloaded" (29C3, 2012).
+<a href="https://eprint.iacr.org/2012/351">eprint.iacr.org/2012/351</a> ·
+<a href="https://www.aumasson.jp/siphash/siphashdos_appsec12_slides.pdf">attack slides</a></dd>
+
+<dt id="ais312024">[BSI AIS-31 v3.0] Bundesamt für Sicherheit in der Informationstechnik</dt>
+<dd><em>AIS 31 — Functionality Classes for Random Number Generators</em>,
+version 3.0, 2024 (successor to Killmann &amp; Schindler's v2.35 of 2011).
+<a href="https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Certification/Interpretations/AIS_31_Functionality_classes_for_random_number_generators_e_2024.pdf">bsi.bund.de (PDF)</a></dd>
+
+<dt id="bosslet2012">[Boßlet 2012] Boßlet, M.</dt>
+<dd>"Breaking Murmur: Hash-flooding DoS reloaded." Blog write-up of the
+seed-independent MurmurHash collisions, December 2012.
+<a href="http://emboss.github.io/blog/2012/12/14/breaking-murmur-hash-flooding-dos-reloaded/">emboss.github.io</a></dd>
+
+<dt id="brown-dieharder">[Brown et al.] Brown, R. G., Eddelbuettel, D., Bauer, D.</dt>
+<dd><em>Dieharder: A Random Number Test Suite</em>, version 3.31.1, Duke
+University Physics.
+<a href="https://webhome.phy.duke.edu/~rgb/General/dieharder.php">webhome.phy.duke.edu/~rgb/General/dieharder.php</a></dd>
+
+<dt id="castro2005">[Castro et al. 2005] Hernández Castro, J. C., Sierra, J. M., Seznec, A., Izquierdo, A., Ribagorda, A.</dt>
+<dd>"The strict avalanche criterion randomness test." <em>Mathematics and
+Computers in Simulation</em> 68(1):1–7, 2005.
+DOI 10.1016/j.matcom.2004.09.001.</dd>
+
+<dt id="cyan-xxhash">[Collet] Collet, Y.</dt>
+<dd><em>xxHash — Extremely fast hash algorithm</em>. Repository and quality
+documentation (SMHasher results for XXH32/64/XXH3).
+<a href="https://github.com/Cyan4973/xxHash">github.com/Cyan4973/xxHash</a></dd>
+
+<dt id="doganaksoy2010">[Doğanaksoy et al. 2010] Doğanaksoy, A., Ege, B., Koçak, O., Sulak, F.</dt>
+<dd>"Statistical Analysis of Reduced Round Compression Functions of SHA-3
+Second Round Candidates." IACR Cryptology ePrint Archive, Report 2010/611.
+<a href="https://eprint.iacr.org/2010/611">eprint.iacr.org/2010/611</a></dd>
+
+<dt id="doty-practrand">[Doty-Humphrey] Doty-Humphrey, C.</dt>
+<dd><em>PractRand (Practically Random)</em>, version 0.94. Unbounded-stream
+test battery: BCFN, DC6, Gap-16, BRank, FPF, mod3n, TMFn.
+<a href="https://pracrand.sourceforge.net/">pracrand.sourceforge.net</a> ·
+<a href="https://pracrand.sourceforge.net/versions.txt">version history</a></dd>
+
+<dt id="erdos1970">[Erdős &amp; Rényi 1970] Erdős, P., Rényi, A.</dt>
+<dd>"On a new law of large numbers." <em>Journal d'Analyse
+Mathématique</em> 23:103–111, 1970. DOI 10.1007/BF02795493.
+<a href="https://link.springer.com/article/10.1007/BF02795493">springer.com</a></dd>
+
+<dt id="feistel1973">[Feistel 1973] Feistel, H.</dt>
+<dd>"Cryptography and Computer Privacy." <em>Scientific American</em>
+228(5):15–23, May 1973. DOI 10.1038/scientificamerican0573-15. Origin of
+the avalanche design goal.</dd>
+
+<dt id="feller1968">[Feller 1968] Feller, W.</dt>
+<dd><em>An Introduction to Probability Theory and Its Applications</em>,
+Vol. 1, 3rd ed., Wiley, 1968. Chapter III: fluctuations in coin tossing,
+the arcsine laws (first stated by Lévy, 1939).</dd>
+
+<dt id="gjrand">[gjrand] "Geronimo Jones"</dt>
+<dd><em>gjrand random numbers</em> — C library and the "mcp" test battery.
+<a href="https://sourceforge.net/projects/gjrand/">sourceforge.net/projects/gjrand</a></dd>
+
+<dt id="good1953">[Good 1953] Good, I. J.</dt>
+<dd>"The serial test for sampling numbers and other tests for randomness."
+<em>Proceedings of the Cambridge Philosophical Society</em> 49:276–284,
+1953. The corrected statistic for overlapping serial tests.</dd>
+
+<dt id="jarzynski2020">[Jarzynski &amp; Olano 2020] Jarzynski, M., Olano, M.</dt>
+<dd>"Hash Functions for GPU Rendering." <em>Journal of Computer Graphics
+Techniques</em> 9(3):20–38, 2020. Ranks hashes by BigCrush failures in
+counter mode.
+<a href="https://jcgt.org/published/0009/03/02/paper.pdf">jcgt.org (PDF)</a></dd>
+
+<dt id="kaminsky2019">[Kaminsky 2019] Kaminsky, A.</dt>
+<dd>"Testing the Randomness of Cryptographic Function Mappings." IACR
+Cryptology ePrint Archive, Report 2019/078.
+<a href="https://eprint.iacr.org/2019/078">eprint.iacr.org/2019/078</a></dd>
+
+<dt id="killmann2002">[Killmann &amp; Schindler 2002] Killmann, W., Schindler, W.</dt>
+<dd>"Evaluation Criteria for True (Physical) Random Number Generators Used
+in Cryptographic Applications." <em>CHES 2002</em>, LNCS 2523, Springer.
+<a href="https://link.springer.com/chapter/10.1007/3-540-36400-5_31">springer.com</a></dd>
+
+<dt id="killmann2011">[Killmann &amp; Schindler 2011] Killmann, W., Schindler, W.</dt>
+<dd><em>A Proposal for: Functionality Classes for Random Number
+Generators</em>, version 2.35 (AIS 20/31 mathematical-technical reference),
+BSI, 2011.</dd>
+
+<dt id="kim2004">[Kim et al. 2004] Kim, S.-J., Umeno, K., Hasegawa, A.</dt>
+<dd>"Corrections of the NIST Statistical Test Suite for Randomness." IACR
+Cryptology ePrint Archive, Report 2004/018. The DFT-test correction.
+<a href="https://eprint.iacr.org/2004/018">eprint.iacr.org/2004/018</a></dd>
+
+<dt id="klink2011">[Klink &amp; Wälde 2011] Klink, A., Wälde, J.</dt>
+<dd>"Efficient Denial of Service Attacks on Web Application Platforms."
+28th Chaos Communication Congress (28C3), Berlin, December 2011; oCERT
+advisory 2011-003.
+<a href="https://fahrplan.events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf">slides (PDF)</a></dd>
+
+<dt id="knuth1997">[Knuth 1997] Knuth, D. E.</dt>
+<dd><em>The Art of Computer Programming, Volume 2: Seminumerical
+Algorithms</em>, 3rd ed., Addison-Wesley, 1997. §3.3: the chi-square and KS
+framework, the empirical-test catalog (§3.3.2), and the spectral test
+(§3.3.4).</dd>
+
+<dt id="kolmogorov1933">[Kolmogorov 1933] Kolmogorov, A. N.</dt>
+<dd>"Sulla determinazione empirica di una legge di distribuzione."
+<em>Giornale dell'Istituto Italiano degli Attuari</em> 4:83–91, 1933.</dd>
+
+<dt id="lecuyer2007">[L'Ecuyer &amp; Simard 2007] L'Ecuyer, P., Simard, R.</dt>
+<dd>"TestU01: A C Library for Empirical Testing of Random Number
+Generators." <em>ACM Transactions on Mathematical Software</em> 33(4),
+Article 22, 2007. DOI 10.1145/1268776.1268777.
+<a href="https://dl.acm.org/doi/10.1145/1268776.1268777">dl.acm.org</a> ·
+<a href="https://simul.iro.umontreal.ca/testu01/tu01.html">software</a></dd>
+
+<dt id="marsaglia1968">[Marsaglia 1968] Marsaglia, G.</dt>
+<dd>"Random numbers fall mainly in the planes." <em>Proceedings of the
+National Academy of Sciences</em> 61(1):25–28, 1968.
+DOI 10.1073/pnas.61.1.25.
+<a href="https://www.pnas.org/doi/10.1073/pnas.61.1.25">pnas.org</a></dd>
+
+<dt id="marsaglia1985">[Marsaglia 1985] Marsaglia, G.</dt>
+<dd>"A current view of random number generators." In <em>Computer Science
+and Statistics: The Interface</em> (16th Symposium), Elsevier, 1985. Origin
+of the birthday-spacings test.</dd>
+
+<dt id="marsaglia1993">[Marsaglia &amp; Zaman 1993] Marsaglia, G., Zaman, A.</dt>
+<dd>"Monkey tests for random number generators." <em>Computers &amp;
+Mathematics with Applications</em> 26(9):1–10, 1993.
+DOI 10.1016/0898-1221(93)90001-C.</dd>
+
+<dt id="marsaglia1995">[Marsaglia 1995] Marsaglia, G.</dt>
+<dd><em>The Marsaglia Random Number CDROM including the Diehard Battery of
+Tests of Randomness</em>. Florida State University, 1995. Original site
+defunct; archived at
+<a href="https://web.archive.org/web/2016/http://stat.fsu.edu/pub/diehard/">web.archive.org</a>.</dd>
+
+<dt id="marsaglia2003">[Marsaglia 2003] Marsaglia, G.</dt>
+<dd>"Xorshift RNGs." <em>Journal of Statistical Software</em> 8(14):1–6,
+2003. DOI 10.18637/jss.v008.i14.</dd>
+
+<dt id="mascagni2000">[Mascagni &amp; Srinivasan 2000] Mascagni, M., Srinivasan, A.</dt>
+<dd>"Algorithm 806: SPRNG: a scalable library for pseudorandom number
+generation." <em>ACM Transactions on Mathematical Software</em>
+26(3):436–461, 2000. DOI 10.1145/358407.358427.</dd>
+
+<dt id="matsumoto1998">[Matsumoto &amp; Nishimura 1998] Matsumoto, M., Nishimura, T.</dt>
+<dd>"Mersenne Twister: a 623-dimensionally equidistributed uniform
+pseudo-random number generator." <em>ACM Transactions on Modeling and
+Computer Simulation</em> 8(1):3–30, 1998. DOI 10.1145/272991.272995.</dd>
+
+<dt id="nist2010">[NIST SP 800-22] Rukhin, A., Soto, J., Nechvatal, J., Smid, M., Barker, E., Leigh, S., Levenson, M., Vangel, M., Banks, D., Heckert, A., Dray, J., Vo, S.; revised by Bassham, L.</dt>
+<dd><em>A Statistical Test Suite for Random and Pseudorandom Number
+Generators for Cryptographic Applications</em>. NIST Special Publication
+800-22 Revision 1a, April 2010. DOI 10.6028/NIST.SP.800-22r1a. (Under
+revision since 2022; see the review entry below.)
+<a href="https://nvlpubs.nist.gov/nistpubs/legacy/sp/nistspecialpublication800-22r1a.pdf">nvlpubs.nist.gov (PDF)</a></dd>
+
+<dt id="nist2016-800185">[NIST SP 800-185] Kelsey, J., Chang, S., Perlner, R.</dt>
+<dd><em>SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and
+ParallelHash</em>. NIST SP 800-185, December 2016.
+DOI 10.6028/NIST.SP.800-185.</dd>
+
+<dt id="nist2018">[NIST SP 800-90B] Sönmez Turan, M., Barker, E., Kelsey, J., McKay, K., Baish, M., Boyle, M.</dt>
+<dd><em>Recommendation for the Entropy Sources Used for Random Bit
+Generation</em>. NIST SP 800-90B, January 2018. DOI 10.6028/NIST.SP.800-90B.
+<a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90B.pdf">nvlpubs.nist.gov (PDF)</a></dd>
+
+<dt id="nist-review2022">[NIST review 2022] Crypto Publication Review Board</dt>
+<dd>Review of SP 800-22 Rev. 1a, opened 2022; public comments and the
+revision discussion, including D. Johnston et al., "On the revision of NIST
+800-22 Test Suites" (IACR ePrint 2022/540).
+<a href="https://csrc.nist.gov/pubs/sp/800/22/r1/upd1/final">csrc.nist.gov</a> ·
+<a href="https://eprint.iacr.org/2022/540">eprint.iacr.org/2022/540</a></dd>
+
+<dt id="nistir7896">[NIST IR 7896] Chang, S., Perlner, R., Burr, W. E., Sönmez Turan, M., Kelsey, J. M., Paul, S., Bassham, L. E.</dt>
+<dd><em>Third-Round Report of the SHA-3 Cryptographic Hash Algorithm
+Competition</em>. NIST Interagency Report 7896, November 2012.
+DOI 10.6028/NIST.IR.7896.
+<a href="https://nvlpubs.nist.gov/nistpubs/ir/2012/nist.ir.7896.pdf">nvlpubs.nist.gov (PDF)</a></dd>
+
+<dt id="oneill2017">[O'Neill 2017] O'Neill, M. E.</dt>
+<dd>"How to Test with PractRand" (and companion posts on testing with
+TestU01), pcg-random.org, 2017.
+<a href="https://www.pcg-random.org/posts/how-to-test-with-practrand.html">pcg-random.org</a></dd>
+
+<dt id="panneton2005">[Panneton &amp; L'Ecuyer 2005] Panneton, F., L'Ecuyer, P.</dt>
+<dd>"On the xorshift random number generators." <em>ACM Transactions on
+Modeling and Computer Simulation</em> 15(4):346–361, 2005.
+DOI 10.1145/1113316.1113319.</dd>
+
+<dt id="pareschi2012">[Pareschi et al. 2012] Pareschi, F., Rovatti, R., Setti, G.</dt>
+<dd>"On Statistical Tests for Randomness Included in the NIST SP800-22 Test
+Suite and Based on the Binomial Distribution." <em>IEEE Transactions on
+Information Forensics and Security</em> 7(2):491–505, 2012.
+DOI 10.1109/TIFS.2012.2185227.</dd>
+
+<dt id="pearson1900">[Pearson 1900] Pearson, K.</dt>
+<dd>"On the criterion that a given system of deviations from the probable in
+the case of a correlated system of variables is such that it can be
+reasonably supposed to have arisen from random sampling."
+<em>Philosophical Magazine</em>, Series 5, 50(302):157–175, 1900.
+DOI 10.1080/14786440009463897.</dd>
+
+<dt id="rabigete">[RaBiGeTe] Cristiano P.M.</dt>
+<dd><em>RaBiGeTe — Random Bit Generators Tester</em>. Windows test suite
+with graphical p-value distribution displays.
+<a href="http://cristianopi.altervista.org/RaBiGeTe_MT/">cristianopi.altervista.org</a></dd>
+
+<dt id="salmon2011">[Salmon et al. 2011] Salmon, J. K., Moraes, M. A., Dror, R. O., Shaw, D. E.</dt>
+<dd>"Parallel Random Numbers: As Easy as 1, 2, 3." <em>Proceedings of
+SC'11</em>, ACM, 2011. DOI 10.1145/2063384.2063405. Philox/Threefry
+counter-based generators, validated with BigCrush.
+<a href="https://www.thesalmons.org/john/random123/papers/random123sc11.pdf">thesalmons.org (PDF)</a></dd>
+
+<dt id="smirnov1948">[Smirnov 1948] Smirnov, N. V.</dt>
+<dd>"Table for estimating the goodness of fit of empirical distributions."
+<em>Annals of Mathematical Statistics</em> 19(2):279–281, 1948.
+DOI 10.1214/aoms/1177730256.</dd>
+
+<dt id="sonmezturan2023">[Appl. Math. Comput. 2023]</dt>
+<dd>"Further analysis of the statistical independence of the NIST SP 800-22
+randomness tests." <em>Applied Mathematics and Computation</em> 459, 2023,
+article 128222.
+<a href="https://www.sciencedirect.com/science/article/pii/S0096300323003910">sciencedirect.com</a></dd>
+
+<dt id="soto2000">[Soto &amp; Bassham 2000] Soto, J., Bassham, L.</dt>
+<dd><em>Randomness Testing of the Advanced Encryption Standard Finalist
+Candidates</em>. NIST IR 6483, 2000.
+<a href="https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=151216">tsapps.nist.gov (PDF)</a></dd>
+
+<dt id="sulak2010">[Sulak et al. 2010] Sulak, F., Doğanaksoy, A., Ege, B., Koçak, O.</dt>
+<dd>"Evaluation of Randomness Test Results for Short Sequences."
+<em>Sequences and Their Applications — SETA 2010</em>, LNCS 6338, Springer.
+DOI 10.1007/978-3-642-15874-2_27.</dd>
+
+<dt id="urban-smhasher">[Urban] Urban, R.</dt>
+<dd><em>smhasher</em> — heavily extended fork of Appleby's SMHasher: more
+hashes, more tests, bad-seed hunting, hash security annotations.
+<a href="https://github.com/rurban/smhasher">github.com/rurban/smhasher</a></dd>
+
+<dt id="vigna2019">[Vigna 2019] Vigna, S.</dt>
+<dd>"It is high time we let go of the Mersenne Twister." arXiv:1910.06437,
+2019. The F2-linearity failure mechanism, documented.
+<a href="https://arxiv.org/abs/1910.06437">arxiv.org/abs/1910.06437</a></dd>
+
+<dt id="walker2008">[Walker 2008] Walker, J.</dt>
+<dd><em>ENT — A Pseudorandom Number Sequence Test Program</em>. Fourmilab,
+January 2008 (originally 1990s).
+<a href="https://www.fourmilab.ch/random/">fourmilab.ch/random</a> ·
+<a href="https://github.com/Fourmilab/ent_random_sequence_tester">source</a></dd>
+
+<dt id="webster1985">[Webster &amp; Tavares 1985] Webster, A. F., Tavares, S. E.</dt>
+<dd>"On the Design of S-Boxes." <em>Advances in Cryptology — CRYPTO
+'85</em>, LNCS 218, Springer, 1986, pp. 523–534.
+DOI 10.1007/3-540-39799-X_41. Defines the Strict Avalanche Criterion and
+the Bit Independence Criterion.
+<a href="https://link.springer.com/chapter/10.1007/3-540-39799-X_41">springer.com</a></dd>
+
+<dt id="wojcik-smhasher3">[Wojcik] Wojcik, F. J. T.</dt>
+<dd><em>SMHasher3</em> — rewrite of SMHasher with corrected tests and
+rigorous p-value reporting (multiple-comparison-corrected "^N" scores).
+<a href="https://gitlab.com/fwojcik/smhasher3">gitlab.com/fwojcik/smhasher3</a></dd>
+
+<dt id="zhu2016">[Zhu et al. 2016] Zhu, S., Ma, Y., Lin, J., Zhuang, J., Jing, J.</dt>
+<dd>"More Powerful and Reliable Second-Level Statistical Randomness Tests
+for NIST SP 800-22." <em>ASIACRYPT 2016</em>, LNCS 10031, Springer.
+DOI 10.1007/978-3-662-53887-6_11.
+<a href="https://eprint.iacr.org/2016/863">eprint.iacr.org/2016/863</a></dd>
+
+</dl>
+
+<h2 id="notes">A note on verification</h2>
+<p>Bibliographic details were checked against publisher records or official
+project pages where available. Classical entries cited through secondary
+sources (Kolmogorov 1933, Good 1953, Marsaglia 1985, Killmann &amp;
+Schindler 2011) follow the standard citations used in the literature —
+principally Knuth's §3.3 notes and the TestU01 paper's reference list.</p>
+
+</main>
+<footer class="site">
+  <p>Cited from every page of the site; each entry's anchor id is the key
+  used in the text (see README § Conventions).</p>
+</footer>
+</body>
+</html>

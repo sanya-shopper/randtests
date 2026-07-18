@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations — Testing Randomness</title>
+<meta name="description" content="The hypothesis-testing framework behind randomness testing: p-values, chi-square, Kolmogorov–Smirnov, and two-level testing.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="foundations.html" aria-current="page">Foundations</a>
+      <a href="classical.html">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html">Diehard</a>
+      <a href="dieharder.html">Dieharder</a>
+      <a href="nist-sts.html">NIST STS</a>
+      <a href="testu01.html">TestU01</a>
+      <a href="practrand.html">PractRand</a>
+      <a href="ent.html">ENT</a>
+      <a href="other-suites.html">Others</a>
+      <a href="hashing.html">Hash functions</a>
+      <a href="bibliography.html">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>Foundations: testing a hypothesis of randomness</h1>
+<p class="lede">Every randomness test, from the simplest bit-count to the
+largest battery in BigCrush, is the same move performed with different
+statistics: assume the stream is truly random, compute something whose
+distribution that assumption pins down, and ask how surprising the observed
+value is.</p>
+
+<h2 id="framework">The framework</h2>
+<p>The null hypothesis H₀ says the sequence was produced by an ideal source:
+independent, uniformly distributed bits (or uniform values on [0,1)). A test
+picks a statistic <var>T</var> — the number of ones, the length of the
+longest run, the rank of a bit matrix — whose distribution under H₀ is known
+exactly or asymptotically. From the observed value it computes a
+<strong>p-value</strong>: the probability, under H₀, that the statistic would
+be at least as extreme as what was seen. Small p-value → the observation is
+surprising under randomness → reject H₀
+<a class="cite" href="bibliography.html#nist2010">[NIST SP 800-22]</a>.</p>
+
+<p>Two kinds of error bound the enterprise. A <strong>Type I error</strong>
+rejects a truly random source; its probability is the significance level α,
+which the tester chooses — NIST suggests values around 0.01 for cryptographic
+work, meaning one in a hundred perfectly good sequences gets flagged
+<em>by design</em>. A <strong>Type II error</strong> accepts a defective
+source, and its probability β cannot be fixed in advance: "non-random" is not
+one alternative but infinitely many, and every defect has its own β. A test
+battery is an attempt to make β small against the defects that occur in
+practice
+<a class="cite" href="bibliography.html#nist2010">[NIST SP 800-22]</a>.</p>
+
+<div class="note">
+<strong>Passing proves nothing.</strong> A test can only <em>fail to
+reject</em>. The binary digits of π pass every battery on this site; so does
+AES output under a known key. Both are completely deterministic. Statistical
+testing screens for the defects it looks for — no more. The converse
+direction, though, is solid: a reproducible failure is a proof of
+non-randomness.
+</div>
+
+<p>One more consequence of the design: with <var>m</var> tests each run at
+level α, a perfect generator still fails about <var>m</var>·α of them.
+A battery of 100 tests at α = 0.01 is <em>expected</em> to produce one
+failure on flawless input. Suites handle this multiple-testing problem in
+different ways — NIST with pass-proportion intervals, Dieharder and TestU01
+with second-level p-values, PractRand and SMHasher3 by widening thresholds
+with the test count — but the reader of any test report must handle it too:
+one marginal p-value is noise, a repeatable extreme one is a verdict.</p>
+
+<h2 id="chisquare">The workhorse: Pearson's chi-square</h2>
+<p>Most randomness tests reduce to counting. Split the possible outcomes
+into <var>k</var> categories with null probabilities
+<var>p</var><sub>1</sub>…<var>p</var><sub>k</sub>, observe counts
+<var>O</var><sub>i</sub> in <var>n</var> trials against expectations
+<var>E</var><sub>i</sub> = <var>n·p</var><sub>i</sub>, and form</p>
+
+<p class="math">χ² = Σ<sub>i</sub> (<var>O</var><sub>i</sub> − <var>E</var><sub>i</sub>)² / <var>E</var><sub>i</sub></p>
+
+<p>Under H₀ this converges to the chi-square distribution with
+<var>k</var> − 1 degrees of freedom (fewer if parameters were estimated from
+the data), so a p-value comes from the upper tail: in NIST's notation,
+p = igamc(<var>ν</var>/2, χ²/2), the regularized upper incomplete gamma
+function. The approximation needs the expected counts to be reasonably
+large — the classical rule of thumb is every
+<var>E</var><sub>i</sub> ≥ 5, merging bins if necessary
+<a class="cite" href="bibliography.html#knuth1997">[Knuth 1997]</a>.
+The statistic dates to Pearson's 1900 paper, the founding document of
+goodness-of-fit testing
+<a class="cite" href="bibliography.html#pearson1900">[Pearson 1900]</a>;
+the degrees-of-freedom correction for estimated parameters came from Fisher
+in the 1920s.</p>
+
+<p>Chi-square is everywhere on this site: the frequency, serial, gap, poker
+and coupon-collector tests are chi-square tests over different categoriza­tions
+(<a href="classical.html">classical tests</a>); most of the NIST battery
+funnels into igamc (<a href="nist-sts.html">NIST STS</a>); ENT reports a raw
+chi-square on byte counts (<a href="ent.html">ENT</a>); SMHasher's bucket
+distribution tests are chi-square in disguise
+(<a href="hashing.html">hash functions</a>).</p>
+
+<h2 id="ks">Kolmogorov–Smirnov: goodness of fit without bins</h2>
+<p>When the statistic under test is continuous, binning throws information
+away. The Kolmogorov–Smirnov test compares the empirical distribution
+function <var>F</var><sub>n</sub> of <var>n</var> observations directly
+against the hypothesized CDF <var>F</var>:</p>
+
+<p class="math"><var>D</var><sub>n</sub> = sup<sub>x</sub> |<var>F</var><sub>n</sub>(x) − <var>F</var>(x)|</p>
+
+<p>Under H₀, √<var>n</var>·<var>D</var><sub>n</sub> has a known limiting
+distribution independent of <var>F</var> (as long as <var>F</var> is
+continuous), which is what makes the test distribution-free
+<a class="cite" href="bibliography.html#kolmogorov1933">[Kolmogorov 1933]</a>
+<a class="cite" href="bibliography.html#smirnov1948">[Smirnov 1948]</a>.
+Knuth treats KS and chi-square as the two pillars: chi-square for categorical
+data, KS for continuous statistics — and, crucially, KS applied <em>on top
+of</em> other tests
+<a class="cite" href="bibliography.html#knuth1997">[Knuth 1997]</a>.</p>
+
+<h2 id="twolevel">Two-level testing: testing the p-values</h2>
+<p>If <var>T</var> has a continuous distribution under H₀, then its p-value
+is itself uniformly distributed on [0,1) — this is the probability integral
+transform, and it is the single most useful fact in the field. Run the same
+test on 1000 disjoint stretches of output and you get 1000 numbers that,
+for a good generator, must look like uniform draws. So test <em>them</em>:
+apply KS or chi-square to the batch of p-values. This "two-level" scheme
+catches defects too small to trip any single run — a slight bias shifts every
+p-value a little, and the shift accumulates across the batch. It also catches
+generators that are <em>too good</em>: statistics hugging their expectations
+produce p-values bunched near ½, which a uniformity test flags just as loudly
+<a class="cite" href="bibliography.html#knuth1997">[Knuth 1997]</a>.</p>
+
+<p>The batteries institutionalise this. NIST requires both a pass-proportion
+check and a chi-square uniformity test on the p-values of each of its tests
+(<a href="nist-sts.html#twolevel">details on the NIST page</a>); Dieharder
+converts every Diehard test into a KS test over many repeated p-values
+(<a href="dieharder.html">Dieharder</a>); TestU01 reports p-values of
+p-values throughout
+<a class="cite" href="bibliography.html#lecuyer2007">[L'Ecuyer &amp; Simard 2007]</a>.
+One caveat travels with the technique: second-level tests amplify not only
+real defects but also any error in the first-level null distribution. If the
+first-level p-values are only asymptotically valid, a large enough second
+level will eventually "detect" the approximation rather than the generator
+<a class="cite" href="bibliography.html#lecuyer2007">[L'Ecuyer &amp; Simard 2007]</a>.</p>
+
+<figure class="viz" id="viz-pvalues">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>Try it.</strong> Each bar counts p-values from 1000
+  chi-square frequency tests, each on 2000 flips of a simulated coin. Fair
+  coin: the histogram is flat and about 10 of 1000 tests land below
+  α = 0.01 — false alarms, exactly as designed. Nudge the bias to 0.52 and
+  the mass avalanches into the leftmost bin: no single 2000-flip test is
+  sure, but the ensemble is unambiguous. This figure is computed live by
+  <code>assets/js/viz/pvalues.js</code> using the chi-square machinery in
+  <code>assets/js/stats.js</code>.</figcaption>
+</figure>
+
+<h2 id="next">Where to next</h2>
+<p>With the framework in hand, the <a href="classical.html">classical
+tests</a> page shows the specific statistics Knuth catalogued and the
+spectral test that explains RANDU; the suite pages show how those ideas were
+industrialised. The same framework runs through the
+<a href="hashing.html">hash-function page</a> — an avalanche matrix cell is
+just a binomial test, and SMHasher's verdicts are p-values with a
+multiple-testing correction.</p>
+
+</main>
+<footer class="site">
+  <p>Figures on this page: <code>assets/js/viz/pvalues.js</code> — see
+  README § Visualizations. Citations link into the
+  <a href="bibliography.html">bibliography</a>.</p>
+</footer>
+<script type="module">
+  import initPvalues from "./assets/js/viz/pvalues.js";
+  initPvalues(document.getElementById("viz-pvalues"));
+</script>
+</body>
+</html>

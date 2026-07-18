@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classical tests — Testing Randomness</title>
+<meta name="description" content="Knuth's catalog of empirical randomness tests, the spectral test, and the RANDU story — with an interactive 3-D demonstration of RANDU's fifteen planes.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="classical.html" aria-current="page">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html">Diehard</a>
+      <a href="dieharder.html">Dieharder</a>
+      <a href="nist-sts.html">NIST STS</a>
+      <a href="testu01.html">TestU01</a>
+      <a href="practrand.html">PractRand</a>
+      <a href="ent.html">ENT</a>
+      <a href="other-suites.html">Others</a>
+      <a href="hashing.html">Hash functions</a>
+      <a href="bibliography.html">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>The classical tests</h1>
+<p class="lede">Before there were suites there was a catalog. Knuth's
+<em>Seminumerical Algorithms</em> collected the empirical tests of the 1950s
+and 60s into the canonical list that every later battery extends, and added
+the theoretical test — the spectral test — that explains <em>why</em> the
+era's most infamous generator was broken
+<a class="cite" href="bibliography.html#knuth1997">[Knuth 1997]</a>.</p>
+
+<h2 id="catalog">Knuth's empirical catalog</h2>
+<p>Throughout, the stream is either uniform reals
+<var>U</var><sub>i</sub> ∈ [0,1) or integer digits
+<var>Y</var><sub>i</sub> = ⌊<var>d·U</var><sub>i</sub>⌋ in {0,…,d−1};
+nearly every test ends in a <a href="foundations.html#chisquare">chi-square</a>
+or <a href="foundations.html#ks">KS</a> comparison.</p>
+
+<table>
+<thead><tr><th>Test</th><th>What it counts</th><th>What it catches</th></tr></thead>
+<tbody>
+<tr><td>Equidistribution</td>
+    <td>Frequency of each digit value; χ² with d−1 df</td>
+    <td>Global bias toward some values</td></tr>
+<tr><td>Serial</td>
+    <td>Frequency of non-overlapping pairs (triples, …) over d² cells</td>
+    <td>Dependence between successive values</td></tr>
+<tr><td>Gap</td>
+    <td>Lengths of gaps between visits to an interval;
+        P(gap = r) = p(1−p)<sup>r</sup></td>
+    <td>Slow oscillation, clustering in ranges</td></tr>
+<tr><td>Poker</td>
+    <td>Pattern of matches in groups of five (pairs, three-of-a-kind, …);
+        probabilities via Stirling numbers</td>
+    <td>Too many or too few repeated values</td></tr>
+<tr><td>Coupon collector</td>
+    <td>Length of segment needed to see every digit value</td>
+    <td>Values that arrive too regularly or too rarely</td></tr>
+<tr><td>Permutation</td>
+    <td>Relative orderings of t-tuples; t! categories</td>
+    <td>Order biases invisible to frequency counts</td></tr>
+<tr><td>Runs up / runs down</td>
+    <td>Lengths of monotone runs — adjacent runs are dependent, so the plain
+        χ² is invalid; Knuth gives a covariance-corrected statistic</td>
+    <td>Local trend structure</td></tr>
+<tr><td>Maximum of t</td>
+    <td>V = max of each t-tuple; CDF <var>x</var><sup>t</sup>, tested by KS</td>
+    <td>Defects in the upper tail</td></tr>
+<tr><td>Collision</td>
+    <td>Balls-into-urns collisions when cells ≫ samples</td>
+    <td>Sparse-regime nonuniformity, where χ² has no power</td></tr>
+<tr><td>Birthday spacings</td>
+    <td>Repeated spacings among sorted random "birthdays"; count is
+        asymptotically Poisson(n³/4m)</td>
+    <td>Lattice structure — lethal to lagged-Fibonacci generators
+        <a class="cite" href="bibliography.html#marsaglia1985">[Marsaglia 1985]</a></td></tr>
+<tr><td>Serial correlation</td>
+    <td>Circular correlation between the stream and its shift</td>
+    <td>First-order linear dependence</td></tr>
+</tbody>
+</table>
+
+<p>Two habits of the catalog echo through everything that followed. First,
+tests come in <em>families</em> indexed by parameters (digit count d, tuple
+size t, interval width p) — a generator is probed from many angles, not one.
+Second, results are aggregated by <a href="foundations.html#twolevel">testing
+the test statistics themselves</a>: Knuth's standard procedure is to repeat a
+chi-square test many times and KS-test the resulting batch, which detects
+both bias and suspicious over-regularity
+<a class="cite" href="bibliography.html#knuth1997">[Knuth 1997]</a>.</p>
+
+<p>The birthday-spacings test deserves special mention because it became the
+signature test of the Diehard battery — a
+<a href="diehard.html#viz-birthday">live demonstration runs on the Diehard
+page</a>, showing a defective LCG drowning in duplicate spacings while a
+decent generator matches the Poisson prediction.</p>
+
+<h2 id="overlapping">Overlapping patterns: the monkey tests</h2>
+<p>Counting <em>overlapping</em> patterns squeezes more information from the
+same data — successive windows share all but one symbol — but the overlap
+makes the counts dependent, so the naive chi-square theory fails. Correct
+treatment needs the distribution theory of overlapping runs and patterns:
+Good's corrected serial statistic
+<a class="cite" href="bibliography.html#good1953">[Good 1953]</a>, and the
+Erdős–Rényi laws governing the longest run of heads in n tosses (it grows
+like log₂ n, with fluctuations that never settle down)
+<a class="cite" href="bibliography.html#erdos1970">[Erdős &amp; Rényi 1970]</a>.
+Marsaglia and Zaman built this into the "monkey tests": let the generator
+type a long string of letters and count the k-letter words that never appear
+— the missing-word count for OPSO, OQSO and DNA has a known approximately
+normal distribution, and generators with subtle bit-level correlations miss
+the wrong number of words
+<a class="cite" href="bibliography.html#marsaglia1993">[Marsaglia &amp; Zaman 1993]</a>.
+These reappear in <a href="diehard.html">Diehard</a> nearly verbatim, and the
+longest-run law underpins one of the
+<a href="nist-sts.html">NIST battery's</a> fifteen tests.</p>
+
+<h2 id="spectral">The spectral test and RANDU</h2>
+<p>The deepest test in the catalog is not empirical at all. A linear
+congruential generator
+<var>x</var><sub>k+1</sub> = <var>a·x</var><sub>k</sub> + c (mod m) does not
+sprinkle t-tuples of output through the unit cube — it places them on a
+lattice, a family of parallel hyperplanes. Marsaglia proved this is
+unavoidable: for any multiplicative congruential generator the t-dimensional
+points fall on at most (t!·m)<sup>1/t</sup> hyperplanes
+<a class="cite" href="bibliography.html#marsaglia1968">[Marsaglia 1968]</a>.
+The <strong>spectral test</strong> computes, from a and m alone, the distance
+between adjacent hyperplanes in each dimension — equivalently the shortest
+vector in the dual lattice — and a generator is good only if that distance is
+small in every dimension that matters
+<a class="cite" href="bibliography.html#knuth1997">[Knuth 1997]</a>.
+Knuth's verdict: all good generators pass it, all known bad ones fail it.</p>
+
+<h3 id="randu">RANDU: the cautionary tale</h3>
+<p>IBM's RANDU (System/360, 1960s) used
+<var>x</var><sub>k+1</sub> = 65539·<var>x</var><sub>k</sub> (mod 2³¹).
+The multiplier was chosen for speed: 65539 = 2¹⁶ + 3, so the multiply
+compiles to shifts and adds. But then, working mod 2³¹,</p>
+
+<p class="math">a² = (2¹⁶+3)² = 2³² + 6·2¹⁶ + 9 ≡ 6·(2¹⁶+3) − 9 = 6a − 9,</p>
+
+<p>so every output obeys
+<var>x</var><sub>k+2</sub> ≡ 6·<var>x</var><sub>k+1</sub> − 9·<var>x</var><sub>k</sub> (mod 2³¹).
+Scaled to the unit cube, every consecutive triple satisfies
+9<var>u</var><sub>1</sub> − 6<var>u</var><sub>2</sub> + <var>u</var><sub>3</sub> ∈ ℤ
+— fifteen parallel planes, against the ≈2300 a well-chosen multiplier of that
+modulus could achieve. Two-dimensional plots looked fine; every
+three-dimensional simulation drew from fifteen slices of the cube. Knuth's
+epitaph: "really horrible"
+<a class="cite" href="bibliography.html#knuth1997">[Knuth 1997]</a>.</p>
+
+<figure class="viz" id="viz-randu">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>Try it.</strong> 3500 consecutive triples
+  (<var>u</var><sub>k</sub>, <var>u</var><sub>k+1</sub>, <var>u</var><sub>k+2</sub>)
+  from RANDU, drawn in the unit cube. Drag to rotate: from most angles the
+  cloud looks perfectly respectable — then the planes snap into view edge-on.
+  That is the whole story of weak testing in one gesture: a defect invisible
+  from almost every direction, obvious from the right one. The spectral test
+  finds the right direction by algebra instead of luck. Toggle to a
+  well-behaved generator for contrast. Rendered by
+  <code>assets/js/viz/randu3d.js</code>; RANDU itself is four lines in
+  <code>assets/js/prng.js</code>.</figcaption>
+</figure>
+
+<h2 id="linearity">A modern echo: linearity and the Mersenne Twister</h2>
+<p>The spectral test punishes <em>linear</em> structure over the integers.
+The same idea over GF(2) — bits, with xor as addition — condemns a whole
+modern family. Generators whose state update is linear in the bits (Mersenne
+Twister, xorshift, and relatives) produce output streams in which every bit
+satisfies a fixed linear recurrence. Build a large 0/1 matrix from such a
+stream and its rank comes out too low; measure the stream's linear
+complexity and it is far below what randomness demands. The Mersenne Twister
+<a class="cite" href="bibliography.html#matsumoto1998">[Matsumoto &amp; Nishimura 1998]</a>
+— period 2¹⁹⁹³⁷−1, 623-dimensionally equidistributed, and a clean pass of
+Diehard — fails exactly the MatrixRank and LinearComp tests in TestU01's
+BigCrush, and fails them at any sample size
+<a class="cite" href="bibliography.html#lecuyer2007">[L'Ecuyer &amp; Simard 2007]</a>
+<a class="cite" href="bibliography.html#vigna2019">[Vigna 2019]</a>.
+Marsaglia's 2003 xorshift proposal
+<a class="cite" href="bibliography.html#marsaglia2003">[Marsaglia 2003]</a>
+met the same fate even faster: Panneton and L'Ecuyer showed raw xorshift
+fails dozens of stringent tests
+<a class="cite" href="bibliography.html#panneton2005">[Panneton &amp; L'Ecuyer 2005]</a>.
+The pattern — each generation of generators passing the last generation of
+tests and failing the next — is the engine that drove the
+<a href="diehard.html">suites</a> this site reviews.</p>
+
+</main>
+<footer class="site">
+  <p>Figures on this page: <code>assets/js/viz/randu3d.js</code> — see
+  README § Visualizations. Citations link into the
+  <a href="bibliography.html">bibliography</a>.</p>
+</footer>
+<script type="module">
+  import initRandu from "./assets/js/viz/randu3d.js";
+  initRandu(document.getElementById("viz-randu"));
+</script>
+</body>
+</html>

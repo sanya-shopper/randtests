@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Other suites — Testing Randomness</title>
+<meta name="description" content="Beyond the big five: gjrand, RaBiGeTe, SPRNG's parallel-stream tests, NIST SP 800-90B health tests, and Germany's AIS-31 methodology.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="classical.html">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html">Diehard</a>
+      <a href="dieharder.html">Dieharder</a>
+      <a href="nist-sts.html">NIST STS</a>
+      <a href="testu01.html">TestU01</a>
+      <a href="practrand.html">PractRand</a>
+      <a href="ent.html">ENT</a>
+      <a href="other-suites.html" aria-current="page">Others</a>
+      <a href="hashing.html">Hash functions</a>
+      <a href="bibliography.html">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>Beyond the big five</h1>
+<p class="lede">A short tour of the suites and standards that round out the
+landscape: two independent batteries with their own good ideas, the
+parallel-streams problem, and the two regulatory frameworks that test
+entropy sources rather than generators.</p>
+
+<h2 id="gjrand">gjrand</h2>
+<p>A C library and battery ("mcp") by the pseudonymous "Geronimo Jones,"
+notable for tests built on unusual statistics — its mod-3 test inspired
+PractRand's mod3n, a lineage PractRand's changelog credits explicitly
+<a class="cite" href="bibliography.html#doty-practrand">[Doty-Humphrey]</a>.
+gjrand has a reputation among generator authors for occasionally catching
+defects the mainstream suites miss, precisely because its tests are not
+aligned to the power-of-two structure most generators and most tests share.
+Documentation is sparse and maintenance quiet; it is best treated as a
+supplementary opinion
+<a class="cite" href="bibliography.html#gjrand">[gjrand]</a>.</p>
+
+<h2 id="rabigete">RaBiGeTe</h2>
+<p>Cristiano P.M.'s "Random Bit Generators Tester" — a Windows-based,
+multithreaded suite with a large test collection and a GUI that plots
+p-value distributions graphically. It found a niche following in the
+sci.crypt era and is effectively dormant, but its emphasis on
+<em>looking</em> at the distribution of p-values rather than thresholding
+them is pedagogically sound — it is the visual version of
+<a href="foundations.html#twolevel">two-level testing</a>
+<a class="cite" href="bibliography.html#rabigete">[RaBiGeTe]</a>.</p>
+
+<h2 id="sprng">SPRNG: the parallel-streams problem</h2>
+<p>Serial suites answer whether one stream is defective. Parallel computing
+raises a different question: are ten thousand streams, drawn from the same
+generator family with different seeds or parameters, defective
+<em>together</em>? Inter-stream correlation can ruin a simulation whose
+every individual stream is impeccable. The SPRNG library (Mascagni &amp;
+Srinivasan) ships tests adapted to exactly this: classical statistics
+computed across streams, plus physical-model tests — most famously Ising
+model simulations, whose exactly known answers make them exquisitely
+sensitive integration tests for correlated randomness
+<a class="cite" href="bibliography.html#mascagni2000">[Mascagni &amp; Srinivasan 2000]</a>.
+The counter-based generators of Random123 were validated with both BigCrush
+and inter-stream variants of it for the same reason
+<a class="cite" href="bibliography.html#salmon2011">[Salmon et al. 2011]</a>.</p>
+
+<h2 id="sp80090b">NIST SP 800-90B: health tests for entropy sources</h2>
+<p>Everything else on this site tests output <em>offline, after the
+fact</em>. SP 800-90B addresses live hardware: an entropy source in
+production must run continuous health tests that catch catastrophic failure
+in real time. The two mandated tests are deliberately minimal — the
+<strong>Repetition Count Test</strong> (does the source emit the same sample
+over and over? a stuck ring oscillator, a dead diode) and the
+<strong>Adaptive Proportion Test</strong> (does one value dominate a
+window?). Alongside them, the standard defines the offline entropy
+estimation track (IID vs non-IID estimator suites) used in validation. The
+contrast with SP 800-22 is the point: health tests are tripwires with
+per-sample budgets measured in nanoseconds, not statistics aiming at power
+<a class="cite" href="bibliography.html#nist2018">[NIST SP 800-90B]</a>.</p>
+
+<h2 id="ais31">AIS-31: the evaluation methodology</h2>
+<p>Germany's BSI takes the position that testing output is not enough: for
+a physical RNG to be certified under Common Criteria, the manufacturer must
+supply a <em>stochastic model</em> of the noise source — a physical argument
+for where the entropy comes from and how much — and then statistical
+procedures verify the model, not merely the output. AIS-31 defines
+functionality classes (PTG.1/2/3 for physical sources, DRG.x for
+deterministic, NTG.1 for non-physical non-deterministic) and two batteries
+of tests (procedures A and B: monobit, poker, runs, long-run,
+autocorrelation, uniform-distribution and entropy tests) keyed to those
+classes
+<a class="cite" href="bibliography.html#killmann2011">[Killmann &amp; Schindler 2011]</a>
+<a class="cite" href="bibliography.html#killmann2002">[Killmann &amp; Schindler 2002]</a>.
+A 2024 revision (version 3.0) aligns the framework with the NIST SP 800-90
+series — the two regulatory worlds converging on the same shape: model the
+source, health-test continuously, statistically test as confirmation
+<a class="cite" href="bibliography.html#ais312024">[BSI AIS-31 v3.0]</a>.</p>
+
+<h2 id="crypto-vs-general">Which suite for which job?</h2>
+<table>
+<thead><tr><th>Situation</th><th>Appropriate instrument</th></tr></thead>
+<tbody>
+<tr><td>Quick sanity check of a file or device</td>
+    <td><a href="ent.html">ENT</a>, then more if it survives</td></tr>
+<tr><td>Vetting a simulation PRNG</td>
+    <td><a href="testu01.html">BigCrush</a> +
+        <a href="practrand.html">PractRand</a> (the modern pair);
+        <a href="dieharder.html">Dieharder</a> as a convenient harness</td></tr>
+<tr><td>Parallel simulation streams</td>
+    <td>Add <a href="#sprng">SPRNG-style</a> inter-stream and
+        physical-model tests</td></tr>
+<tr><td>Certification of a cryptographic RNG</td>
+    <td><a href="nist-sts.html">SP 800-22</a> where mandated, SP 800-90B
+        for the entropy source, <a href="#ais31">AIS-31</a> in the CC
+        world — plus actual cryptanalysis, which no battery replaces</td></tr>
+<tr><td>Evaluating a hash function</td>
+    <td><a href="hashing.html">SMHasher and friends</a> — next page</td></tr>
+</tbody>
+</table>
+
+</main>
+<footer class="site">
+  <p>No figures on this page. Citations link into the
+  <a href="bibliography.html">bibliography</a>.</p>
+</footer>
+</body>
+</html>

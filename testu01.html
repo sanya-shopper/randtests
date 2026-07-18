@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TestU01 — Testing Randomness</title>
+<meta name="description" content="TestU01 and its SmallCrush, Crush and BigCrush batteries: the gold standard of PRNG testing since 2007 — history, contents, strengths and blind spots.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="classical.html">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html">Diehard</a>
+      <a href="dieharder.html">Dieharder</a>
+      <a href="nist-sts.html">NIST STS</a>
+      <a href="testu01.html" aria-current="page">TestU01</a>
+      <a href="practrand.html">PractRand</a>
+      <a href="ent.html">ENT</a>
+      <a href="other-suites.html">Others</a>
+      <a href="hashing.html">Hash functions</a>
+      <a href="bibliography.html">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>TestU01 (L'Ecuyer &amp; Simard, 2007)</h1>
+<p class="lede">The gold standard. TestU01 collected essentially every
+empirical test in the literature into one ANSI C library with adjustable
+parameters, then bolted three predefined batteries on top. Since 2007,
+"passes BigCrush" has been the sentence a new generator must be able to
+say
+<a class="cite" href="bibliography.html#lecuyer2007">[L'Ecuyer &amp; Simard 2007]</a>.</p>
+
+<h2 id="history">History and design</h2>
+<p>Pierre L'Ecuyer spent the 1980s and 90s building the theory of generator
+quality — spectral figures of merit, equidistribution, combined generators.
+TestU01, written with Richard Simard and published in <em>ACM TOMS</em> in
+2007, is that program made executable. Its stated motivations read as a
+critique of the field: <a href="diehard.html">Diehard's</a> samples were too
+small and its parameters frozen; <a href="nist-sts.html">NIST's battery</a>
+was too weak; nobody could compare results across ad-hoc implementations.
+TestU01 wraps any generator as a C object (<code>unif01_Gen</code>), offers
+the tests with parameters exposed, and defines standard batteries so that
+"we ran Crush" means the same thing everywhere
+<a class="cite" href="bibliography.html#lecuyer2007">[L'Ecuyer &amp; Simard 2007]</a>.</p>
+
+<h2 id="batteries">The batteries</h2>
+<table>
+<thead><tr><th>Battery</th><th class="num">Tests</th><th class="num">Statistics</th>
+<th>Data appetite</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td>SmallCrush</td><td class="num">10</td><td class="num">15</td>
+    <td>~minutes</td><td>Quick screen — failures here mean a badly broken generator</td></tr>
+<tr><td>Crush</td><td class="num">96</td><td class="num">~144</td>
+    <td>≈ 2³⁵ values</td><td>The serious battery</td></tr>
+<tr><td>BigCrush</td><td class="num">106</td><td class="num">~160</td>
+    <td>≈ 2³⁸ values</td><td>The standard of record</td></tr>
+<tr><td>Rabbit / Alphabit / BlockAlphabit</td><td class="num" colspan="2">size-adaptive</td>
+    <td>a supplied bit file</td><td>Finite bit strings — hardware RNG captures, files</td></tr>
+</tbody>
+</table>
+<p>The test population spans this whole site: serial and collision tests,
+gap, poker, coupon collector, max-of-t, birthday spacings in high
+dimensions, close pairs, matrix rank, Hamming-weight dependence, random
+walks, linear complexity, Lempel–Ziv, Fourier — the
+<a href="classical.html">classical catalog</a>, the
+<a href="diehard.html">Diehard inventions</a>, and the modern additions,
+each generalised and parameterised.</p>
+
+<figure class="viz" id="viz-batteries">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>Scale is the story.</strong> Approximate input
+  consumed by each battery (log scale; order-of-magnitude figures from the
+  sources cited in the text — ENT and Diehard read fixed small files, NIST
+  is shown at its customary 1000×10⁶-bit configuration, Crush and BigCrush
+  at ≈2³⁵ and ≈2³⁸ 32-bit values, PractRand at its default 32 TB cap). Each
+  suite generation could see defects the previous one physically could not
+  reach. Drawn by <code>assets/js/viz/batteries.js</code>.</figcaption>
+</figure>
+
+<h2 id="results">What it found</h2>
+<p>The TOMS paper's famous results table ran dozens of generators in wide
+use — language defaults, textbook recommendations, Diehard survivors —
+through the batteries. Most failed. The Mersenne Twister's two BigCrush
+failures (MatrixRank and LinearComp, the
+<a href="classical.html#linearity">GF(2)-linearity signature</a>) are the
+best-known line, but the table's larger message was that passing the
+previous era's tests meant little: the ratchet of stringency had turned
+again
+<a class="cite" href="bibliography.html#lecuyer2007">[L'Ecuyer &amp; Simard 2007]</a>
+<a class="cite" href="bibliography.html#vigna2019">[Vigna 2019]</a>.
+Every serious generator proposal since — PCG, xoshiro/xoroshiro, counter-based
+generators — reports BigCrush results as a matter of course
+<a class="cite" href="bibliography.html#salmon2011">[Salmon et al. 2011]</a>.</p>
+
+<h2 id="assessment">Strengths and blind spots</h2>
+<p><span class="pass">Strengths.</span> Breadth (the whole literature in one
+library), parameterisation, standardisation, and the theoretical pedigree to
+choose test parameters where power actually lies. Rabbit/Alphabit extend
+coverage to finite files from hardware sources.</p>
+<p><span class="fail">Blind spots.</span> TestU01 interprets output as
+[0,1) doubles built from 32-bit values, so it weights high-order bits: a
+generator with weak <em>low</em> bits can pass until the stream is
+bit-reversed, and 64-bit generators must be fed as split or reversed halves
+— testing conventions the user must know. Batteries are fixed-size rather
+than sequential: they answer "did 2³⁸ values fail?" but not "how far must I
+go before it fails?", which is <a href="practrand.html">PractRand's</a>
+question. The library is single-threaded C with a learning curve, last
+released in 2009 and now community-mirrored. And like everything on this
+site, it certifies nothing cryptographic: AES-CTR passes BigCrush with any
+key; that is a fact about the tests, not about key security.</p>
+
+</main>
+<footer class="site">
+  <p>Figures on this page: <code>assets/js/viz/batteries.js</code> — see
+  README § Visualizations. Citations link into the
+  <a href="bibliography.html">bibliography</a>.</p>
+</footer>
+<script type="module">
+  import initBatteries from "./assets/js/viz/batteries.js";
+  initBatteries(document.getElementById("viz-batteries"));
+</script>
+</body>
+</html>

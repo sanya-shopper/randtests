@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hash functions — Testing Randomness</title>
+<meta name="description" content="Statistical testing of hash functions: avalanche and SAC, bit independence, SMHasher, collision statistics and the birthday bound, hash-as-PRNG testing, and why statistical quality is not cryptographic security.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="classical.html">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html">Diehard</a>
+      <a href="dieharder.html">Dieharder</a>
+      <a href="nist-sts.html">NIST STS</a>
+      <a href="testu01.html">TestU01</a>
+      <a href="practrand.html">PractRand</a>
+      <a href="ent.html">ENT</a>
+      <a href="other-suites.html">Others</a>
+      <a href="hashing.html" aria-current="page">Hash functions</a>
+      <a href="bibliography.html">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>Testing hash functions</h1>
+<p class="lede">A hash function is supposed to behave like a random function
+of its input: flip one input bit and the output should be freshly random.
+That claim is testable with the same machinery as the PRNG suites — plus a
+family of criteria of its own — and its limits are sharper here than
+anywhere else, because hash functions face adversaries, and adversaries
+don't sample from distributions.</p>
+
+<h2 id="avalanche">The avalanche effect and the Strict Avalanche Criterion</h2>
+<p>The design goal goes back to Feistel: a small input change should
+"avalanche" into a large, unpredictable output change
+<a class="cite" href="bibliography.html#feistel1973">[Feistel 1973]</a>.
+Webster and Tavares made it precise as the <strong>Strict Avalanche
+Criterion</strong>: complementing any single input bit should flip each
+output bit with probability exactly ½
+<a class="cite" href="bibliography.html#webster1985">[Webster &amp; Tavares 1985]</a>.</p>
+
+<p>The measurement is direct. For input bit i and output bit j, draw T
+random inputs x, compute f(x) ⊕ f(x ⊕ e<sub>i</sub>), and record the
+fraction p̂<sub>ij</sub> of trials in which bit j flipped. The result is the
+<strong>avalanche matrix</strong>; under the null hypothesis each cell's flip
+count is Binomial(T, ½), so cells convert to z-scores or the whole matrix to
+a <a href="foundations.html#chisquare">chi-square statistic</a>, and "worst
+cell bias |2p̂−1|" becomes the headline number — SMHasher fails a hash whose
+worst bias exceeds about 1%
+<a class="cite" href="bibliography.html#castro2005">[Castro et al. 2005]</a>
+<a class="cite" href="bibliography.html#appleby-smhasher">[Appleby]</a>.</p>
+
+<figure class="viz" id="viz-avalanche">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>Try it.</strong> Avalanche matrices computed live
+  (T = 400 samples per input bit, 32-bit functions; cell shade = bias
+  |2p̂−1|, light = ideal). Left, bare multiplication by a constant: carries
+  only propagate upward, so output bit j cannot depend on input bits above
+  j — the dead lower-left triangle is a <em>structural</em> SAC failure no
+  parameter tuning can fix. Right, MurmurHash3's fmix32 finalizer: xor-shifts
+  push information downward, multiplies push it upward, and after three
+  rounds every cell sits near ½. Hover any cell for its exact flip
+  probability. Computed by <code>assets/js/viz/avalanche.js</code>.</figcaption>
+</figure>
+
+<h2 id="bic">Bit independence</h2>
+<p>SAC is necessary, not sufficient: every output bit can flip with
+probability ½ while pairs of output bits flip <em>together</em>. The
+<strong>Bit Independence Criterion</strong>, from the same Webster–Tavares
+paper, demands that for any flipped input bit, every pair of output bits
+change independently — measured by correlating the avalanche indicator
+variables over the sample, or chi-square on the 2×2 table of joint outcomes
+(00/01/10/11 each ¼). SAC plus BIC says the avalanche variables behave like
+independent fair coins — the local signature of a random function
+<a class="cite" href="bibliography.html#webster1985">[Webster &amp; Tavares 1985]</a>.</p>
+
+<h2 id="collisions">Collision statistics and the birthday bound</h2>
+<p>Hash n distinct keys into 2<sup>b</sup> buckets and, if the hash behaves
+randomly, the expected number of colliding pairs is</p>
+<p class="math">E[C] = n(n−1) / 2<sup>b+1</sup></p>
+<p>with the count approximately Poisson for small expectations. Collision
+probability reaches ½ near n ≈ 1.18·2<sup>b/2</sup> — the birthday bound
+that gives b-bit hashes only b/2 bits of collision resistance. Test suites
+score keysets by observed-vs-expected collisions in both directions: too
+many collisions means clustering; too few, in truncated-output tests, means
+structure. Distribution tests do the same for bucket occupancy via
+chi-square. These are the <a href="classical.html#catalog">collision and
+equidistribution tests</a> wearing hash-function clothes.</p>
+
+<h2 id="smhasher">SMHasher and its descendants</h2>
+<p>Austin Appleby's SMHasher (~2010) did for non-cryptographic hashes what
+<a href="diehard.html">Diehard</a> did for generators: packaged the
+embarrassing questions. Its structure survives through Reini Urban's
+much-extended fork and Frank J. T. Wojcik's SMHasher3 rewrite
+<a class="cite" href="bibliography.html#appleby-smhasher">[Appleby]</a>
+<a class="cite" href="bibliography.html#urban-smhasher">[Urban]</a>
+<a class="cite" href="bibliography.html#wojcik-smhasher3">[Wojcik]</a>.</p>
+
+<table>
+<thead><tr><th>Category</th><th>What it probes</th></tr></thead>
+<tbody>
+<tr><td>Avalanche / BIC</td><td>The <a href="#avalanche">criteria above</a>,
+    per input-bit × output-bit</td></tr>
+<tr><td>Differential</td><td>Input-difference patterns that collide more
+    often than chance — a statistical shadow of differential
+    cryptanalysis</td></tr>
+<tr><td>Keyset collisions &amp; distribution</td>
+    <td>Structured key families — cyclic blocks, sparse (mostly-zero) keys,
+    permuted blocks, two-byte windows, text-like keys, Perlin-noise
+    coordinates — scored against birthday expectations and chi-square
+    uniformity</td></tr>
+<tr><td>Seed tests</td><td>Vary the seed with fixed keys; hunt for "bad
+    seeds" that collapse the hash</td></tr>
+<tr><td>Hash-as-PRNG</td><td>Feed hash output into stream tests
+    (<a href="#hashprng">below</a>)</td></tr>
+<tr><td>Speed</td><td>Bulk throughput and small-key latency — not a quality
+    test but the reason most of these hashes exist</td></tr>
+</tbody>
+</table>
+
+<p>The structured keysets are the insight. Random keys are the easy case —
+almost anything looks fine on them. Real workloads hash counters, pointers,
+coordinates, and near-identical strings, so the battery deliberately feeds
+the hash minimal-entropy, maximal-structure inputs where weak mixing has
+nowhere to hide. SMHasher3 added the statistical rigor the original lacked:
+every result becomes a p-value corrected for the ≈16,000 tests in a full
+run, so a reported failure is meant to be a real one
+<a class="cite" href="bibliography.html#wojcik-smhasher3">[Wojcik]</a>.</p>
+
+<h2 id="hashprng">Hash as PRNG: borrowing the stream suites</h2>
+<p>Define G(k) = H(k‖0), H(k‖1), H(k‖2), … and any hash becomes a
+counter-mode generator whose stream can be piped into
+<a href="dieharder.html">Dieharder</a>, <a href="practrand.html">PractRand</a>
+or <a href="testu01.html">BigCrush</a>. The input is the adversarially
+boring one — a counter, differing in a handful of low bits per step — so
+stream failures indict the hash's mixing directly. This construction is how
+GPU-oriented hashes were ranked by BigCrush failure count
+<a class="cite" href="bibliography.html#jarzynski2020">[Jarzynski &amp; Olano 2020]</a>,
+and it is the design principle, run in reverse, of the counter-based
+generators (Philox, Threefry) that now dominate parallel simulation: a good
+keyed mixer of a counter <em>is</em> a good PRNG
+<a class="cite" href="bibliography.html#salmon2011">[Salmon et al. 2011]</a>.
+xxHash's XXH3, BLAKE3 and SipHash all pass these batteries; for
+cryptographic hashes that is table stakes rather than news
+<a class="cite" href="bibliography.html#cyan-xxhash">[Collet]</a>.</p>
+
+<h2 id="sha3">Statistical testing in the SHA-3 competition</h2>
+<p>NIST's competitions institutionalised a version of this. For AES, NIST
+itself ran candidate ciphers' outputs — avalanche datasets, low- and
+high-density inputs, plaintext/ciphertext correlation streams — through the
+<a href="nist-sts.html">STS battery</a>
+<a class="cite" href="bibliography.html#soto2000">[Soto &amp; Bassham 2000]</a>.
+For SHA-3, the heavy statistical lifting came from the research community:
+round-reduced candidates were tested for how many rounds it takes before
+outputs become statistically indistinguishable from random, turning the
+battery into a security-margin ruler
+<a class="cite" href="bibliography.html#doganaksoy2010">[Doğanaksoy et al. 2010]</a>,
+with companion methodology for applying randomness tests to sequences as
+short as a hash output
+<a class="cite" href="bibliography.html#sulak2010">[Sulak et al. 2010]</a>.
+NIST's official round reports weighed that evidence alongside what actually
+decided the competition: cryptanalysis, security margins, and performance
+<a class="cite" href="bibliography.html#nistir7896">[NIST IR 7896]</a>.</p>
+
+<h2 id="notsecurity">The hard lesson: statistical quality is not security</h2>
+<p>Every test on this page measures <em>average-case</em> behaviour over
+sampled inputs. An adversary is not a sampling distribution.</p>
+
+<p>The demonstration came in two acts. At 28C3 (2011), Klink and Wälde
+showed that the multiplicative string hashes inside PHP, Java, Python, Ruby
+and ASP.NET admit cheap multicollisions — kilobytes of crafted POST
+parameters drove web servers into quadratic hash-table behaviour and denial
+of service
+<a class="cite" href="bibliography.html#klink2011">[Klink &amp; Wälde 2011]</a>.
+Vendors responded with randomized seeding, and MurmurHash — a hash with an
+excellent SMHasher record — became the recommended fix. Act two: Aumasson,
+Bernstein and Boßlet produced <strong>seed-independent</strong> collisions
+for MurmurHash2, MurmurHash3 and CityHash64 — inputs that collide for
+<em>every</em> seed, by inverting the very mixing rounds whose statistical
+behaviour was flawless. The attack exploits invertibility, a structural
+property no black-box statistical test can see
+<a class="cite" href="bibliography.html#aumasson2012">[Aumasson &amp; Bernstein 2012]</a>
+<a class="cite" href="bibliography.html#bosslet2012">[Boßlet 2012]</a>.
+Their constructive answer, SipHash, is a keyed PRF with an actual security
+argument, since adopted as the hash-table hash of Python, Ruby, Rust and
+others
+<a class="cite" href="bibliography.html#aumasson2012">[Aumasson &amp; Bernstein 2012]</a>.</p>
+
+<div class="note">
+<strong>The formal frame.</strong> Every statistical test is a
+<em>distinguisher</em>: an algorithm trying to tell H's outputs from a
+random oracle's. Cryptographic security claims quantify over <em>all</em>
+efficient distinguishers — including ones that know the algorithm and choose
+inputs adaptively. A battery checks a few dozen fixed, cheap,
+non-adaptive ones
+<a class="cite" href="bibliography.html#kaminsky2019">[Kaminsky 2019]</a>.
+That is why failing a battery is damning while passing one proves little,
+and why NIST's SHA-3-derived standards state their guarantees in
+indistinguishability terms rather than as test results
+<a class="cite" href="bibliography.html#nist2016-800185">[NIST SP 800-185]</a>.
+It is the <a href="foundations.html#framework">foundations-page
+asymmetry</a>, with an adversary attached.
+</div>
+
+</main>
+<footer class="site">
+  <p>Figures on this page: <code>assets/js/viz/avalanche.js</code> — see
+  README § Visualizations. Citations link into the
+  <a href="bibliography.html">bibliography</a>.</p>
+</footer>
+<script type="module">
+  import initAvalanche from "./assets/js/viz/avalanche.js";
+  initAvalanche(document.getElementById("viz-avalanche"));
+</script>
+</body>
+</html>
