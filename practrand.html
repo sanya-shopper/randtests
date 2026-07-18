@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PractRand — Testing Randomness</title>
+<meta name="description" content="PractRand's unbounded-stream philosophy: test until failure, with doubling checkpoints, folding transforms, and graded verdicts.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="classical.html">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html">Diehard</a>
+      <a href="dieharder.html">Dieharder</a>
+      <a href="nist-sts.html">NIST STS</a>
+      <a href="testu01.html">TestU01</a>
+      <a href="practrand.html" aria-current="page">PractRand</a>
+      <a href="ent.html">ENT</a>
+      <a href="other-suites.html">Others</a>
+      <a href="hashing.html">Hash functions</a>
+      <a href="bibliography.html">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>PractRand (Doty-Humphrey, ~2010–)</h1>
+<p class="lede">Every earlier suite asks a yes/no question about a fixed
+amount of data. PractRand changes the question: keep reading the stream,
+retest at every doubling, and report <em>how many bytes it took</em> to
+break the generator. Quality becomes a number with units
+<a class="cite" href="bibliography.html#doty-practrand">[Doty-Humphrey]</a>.</p>
+
+<h2 id="philosophy">The unbounded-stream philosophy</h2>
+<p>PractRand's <code>RNG_test</code> reads raw bytes from stdin —
+<code>./mygen | RNG_test stdin64</code> — and applies its battery at
+geometrically spaced checkpoints (256 MB, 512 MB, 1 GB, …) until a test
+fails decisively or a cap is reached (32 TB by default). Because any real
+defect grows more visible with data, "first failure at 512 GB" is a
+meaningful, reproducible measurement that ranks generators far more finely
+than pass/fail at a fixed size. The Mersenne Twister, which
+<a href="testu01.html#results">fails two BigCrush tests</a>, fails
+PractRand's binary-rank test at the quarter-terabyte scale; weak xorshift
+variants die in megabytes
+<a class="cite" href="bibliography.html#oneill2017">[O'Neill 2017]</a>.</p>
+
+<h2 id="tests">The core tests</h2>
+<table>
+<thead><tr><th>Test</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td>BCFN</td><td>Multi-scale bit-count correlations on progressively
+    decimated views of the stream — long-range structure</td></tr>
+<tr><td>DC6</td><td>Overlapping 6-bit counting — short-range pattern bias</td></tr>
+<tr><td>Gap-16</td><td>Gap lengths between recurrences of 16-bit values —
+    the classical <a href="classical.html#catalog">gap test</a>, scaled up</td></tr>
+<tr><td>BRank</td><td>Binary matrix rank at multiple sizes —
+    <a href="classical.html#linearity">GF(2) linearity</a></td></tr>
+<tr><td>FPF</td><td>Pattern-frequency testing — a sensitive general-purpose
+    detector</td></tr>
+<tr><td>mod3n</td><td>Chained mod-3 statistics (after gjrand) — bias
+    invisible to power-of-two-aligned tests</td></tr>
+<tr><td>TMFn</td><td>Added in 0.94 specifically to catch LCG structure
+    cheaply</td></tr>
+</tbody>
+</table>
+<p>Crucially, each checkpoint runs the battery not only on the raw stream
+but on <em>folded</em> sub-streams that concentrate the low-order bits —
+patching the known <a href="testu01.html#assessment">TestU01 blind
+spot</a> for defective low bits
+<a class="cite" href="bibliography.html#doty-practrand">[Doty-Humphrey]</a>.</p>
+
+<h2 id="verdicts">Reading the output</h2>
+<p>Every subtest yields a p-value; PractRand grades extremity against the
+number of tests run, escalating from "unusual" through "mildly suspicious"
+and "VERY SUSPICIOUS" to <span class="fail">FAIL !!!!!!!!</span> (more
+exclamation marks, more certainty). Isolated "unusual" flags are expected
+noise — the <a href="foundations.html#framework">multiple-testing
+arithmetic</a> guarantees them — and the operational rule is to watch
+whether an anomaly <em>persists and sharpens</em> at successive doublings.
+A real defect only ever gets worse with more data
+<a class="cite" href="bibliography.html#oneill2017">[O'Neill 2017]</a>.</p>
+
+<h2 id="assessment">Where it fits</h2>
+<p><span class="pass">Strengths.</span> In practice the most sensitive
+general-purpose suite available; handles terabytes; native 64-bit and
+low-bit coverage; multithreaded; the natural complement to BigCrush — new
+generator papers now customarily report both, and the same piping idiom
+tests <a href="hashing.html#hashprng">hash functions in counter mode</a>.</p>
+<p><span class="fail">Caveats.</span> A pseudonymous single-author project
+without a peer-reviewed paper; several reference distributions are
+empirically calibrated rather than derived, so the fine-grained verdict
+grades rest on the author's calibration runs. Development has been quiet
+since version 0.94 (a 0.95 pre-release circulates). None of this has
+prevented it becoming the de facto second pillar of modern PRNG
+vetting — but it is engineering consensus, not reviewed statistics
+<a class="cite" href="bibliography.html#doty-practrand">[Doty-Humphrey]</a>.</p>
+
+<div class="note">
+The data-appetite chart on the <a href="testu01.html">TestU01 page</a> shows
+PractRand's 32 TB ceiling against the other suites — three orders of
+magnitude beyond BigCrush, five beyond NIST.
+</div>
+
+</main>
+<footer class="site">
+  <p>No figures on this page; PractRand's scale appears in the battery
+  comparison on <a href="testu01.html">TestU01</a>. Citations link into the
+  <a href="bibliography.html">bibliography</a>.</p>
+  <p>Source: <a href="https://github.com/sanya-shopper/randtests">github.com/sanya-shopper/randtests</a> — layout map in the <a href="https://github.com/sanya-shopper/randtests#layout">README</a>. Sibling project: <a href="https://sanya-shopper.github.io/distribs/">probsim</a>.</p>
+</footer>
+</body>
+</html>

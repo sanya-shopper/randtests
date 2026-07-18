@@ -1,0 +1,225 @@
+/* style.css — shared stylesheet for every page of the site.
+ *
+ * Conventions (see README.md § Design conventions):
+ *  - Colors are defined once as CSS custom properties on :root, with a dark
+ *    variant selected by prefers-color-scheme. Chart code reads these
+ *    variables via getComputedStyle rather than hard-coding hex values, so
+ *    the two stay in sync automatically (see assets/js/viz/common.js).
+ *  - The categorical series colors follow a CVD-validated ordering; do not
+ *    reorder them (slot order, not hue, is the accessibility mechanism).
+ */
+
+:root {
+  color-scheme: light;
+  --page:        #f9f9f7;
+  --surface:     #fcfcfb;
+  --ink:         #0b0b0b;
+  --ink-2:       #52514e;
+  --muted:       #898781;
+  --grid:        #e1e0d9;
+  --baseline:    #c3c2b7;
+  --border:      rgba(11, 11, 11, 0.10);
+  --accent:      #2a78d6;   /* series-1: links, primary marks   */
+  --series-2:    #008300;
+  --series-3:    #e87ba4;
+  --series-4:    #eda100;
+  --bad:         #d03b3b;   /* status: critical / "fails"       */
+  --good:        #0ca30c;   /* status: good / "passes"          */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page:      #0d0d0d;
+    --surface:   #1a1a19;
+    --ink:       #ffffff;
+    --ink-2:     #c3c2b7;
+    --muted:     #898781;
+    --grid:      #2c2c2a;
+    --baseline:  #383835;
+    --border:    rgba(255, 255, 255, 0.10);
+    --accent:    #3987e5;
+    --series-2:  #008300;
+    --series-3:  #d55181;
+    --series-4:  #c98500;
+    --bad:       #d03b3b;
+    --good:      #0ca30c;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font: 17px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ---- Page chrome ------------------------------------------------------ */
+
+header.site {
+  border-bottom: 1px solid var(--grid);
+  background: var(--surface);
+}
+header.site .inner {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 0.9rem 1.25rem;
+}
+header.site .title {
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+nav.site {
+  max-width: 52rem;
+  margin: 0.4rem auto 0;
+  font-size: 0.85rem;
+  line-height: 2;
+}
+nav.site a {
+  color: var(--ink-2);
+  text-decoration: none;
+  margin-right: 0.9rem;
+  white-space: nowrap;
+}
+nav.site a:hover { color: var(--accent); }
+nav.site a[aria-current="page"] {
+  color: var(--accent);
+  font-weight: 600;
+}
+nav.site .group { color: var(--muted); margin-right: 0.35rem; }
+
+main {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+}
+
+footer.site {
+  border-top: 1px solid var(--grid);
+  color: var(--muted);
+  font-size: 0.85rem;
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 2.5rem;
+}
+footer.site a { color: var(--ink-2); }
+
+/* ---- Prose ------------------------------------------------------------ */
+
+h1 { font-size: 1.7rem; line-height: 1.25; margin: 0.5rem 0 0.4rem; }
+h2 { font-size: 1.25rem; margin-top: 2.2rem; }
+h3 { font-size: 1.05rem; margin-top: 1.6rem; }
+h2, h3 { scroll-margin-top: 1rem; }
+
+p.lede { color: var(--ink-2); font-size: 1.05rem; margin-top: 0; }
+
+a { color: var(--accent); }
+
+code, pre {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--surface);
+  border: 1px solid var(--grid);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  overflow-x: auto;
+}
+
+/* Inline math is plain HTML (var/sub/sup) — no JS math renderer.
+ * .math marks display equations; keep them short enough not to scroll. */
+.math {
+  display: block;
+  margin: 0.9rem 0;
+  padding: 0.55rem 1rem;
+  background: var(--surface);
+  border-left: 3px solid var(--grid);
+  overflow-x: auto;
+  font-size: 1.02em;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.92rem;
+  margin: 1rem 0;
+}
+th, td {
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid var(--grid);
+  vertical-align: top;
+}
+th { color: var(--ink-2); font-weight: 600; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.pass { color: var(--good); font-weight: 600; }
+.fail { color: var(--bad);  font-weight: 600; }
+
+/* Callout for caveats ("passing proves nothing" etc.) */
+.note {
+  background: var(--surface);
+  border: 1px solid var(--grid);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  margin: 1.2rem 0;
+  font-size: 0.95rem;
+}
+
+/* Citation links: [Knuth 1997] → bibliography.html#knuth1997 */
+a.cite {
+  color: var(--ink-2);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--muted);
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+a.cite:hover { color: var(--accent); }
+
+/* Bibliography entries */
+.bib dt { font-weight: 600; margin-top: 1.1rem; }
+.bib dd { margin: 0.15rem 0 0 0; color: var(--ink-2); font-size: 0.95rem; }
+
+/* ---- Figures / visualizations ----------------------------------------- */
+
+figure.viz {
+  margin: 1.6rem 0;
+  padding: 1rem 1rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+figure.viz canvas, figure.viz svg { display: block; width: 100%; height: auto; }
+figure.viz figcaption {
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  margin-top: 0.7rem;
+  line-height: 1.5;
+}
+figure.viz .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+figure.viz .controls label { display: inline-flex; gap: 0.35rem; align-items: center; }
+figure.viz .controls button {
+  font: inherit;
+  color: var(--ink);
+  background: var(--page);
+  border: 1px solid var(--baseline);
+  border-radius: 6px;
+  padding: 0.15rem 0.7rem;
+  cursor: pointer;
+}
+figure.viz .controls button:hover { border-color: var(--accent); }
+figure.viz output { font-variant-numeric: tabular-nums; }

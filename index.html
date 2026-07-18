@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing Randomness — statistical tests for PRNGs and hash functions</title>
+<meta name="description" content="A walk through the statistical tests applied to pseudorandom number generators and cryptographic hash functions: the theory behind them and the major suites — Diehard, Dieharder, NIST SP 800-22, TestU01, PractRand, ENT, SMHasher.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html" aria-current="page">Overview</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="classical.html">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html">Diehard</a>
+      <a href="dieharder.html">Dieharder</a>
+      <a href="nist-sts.html">NIST STS</a>
+      <a href="testu01.html">TestU01</a>
+      <a href="practrand.html">PractRand</a>
+      <a href="ent.html">ENT</a>
+      <a href="other-suites.html">Others</a>
+      <a href="hashing.html">Hash functions</a>
+      <a href="bibliography.html">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>How do you test a random number?</h1>
+<p class="lede">You can't — a single number is neither random nor not. What you
+can test is a <em>source</em>: take a long stream of its output, compute
+statistics whose distributions are known for true randomness, and see whether
+the stream behaves the way genuine coin flips would. This site walks through
+the statistical theory behind those tests and reviews the major test suites
+that grew out of it, from Marsaglia's Diehard battery to TestU01 and
+PractRand, plus the specialised tests applied to cryptographic and
+non-cryptographic hash functions.</p>
+
+<div class="note">
+<strong>The one-sentence summary of the whole field:</strong> a statistical
+test can prove a generator is <em>bad</em>, but no collection of tests can
+prove one is <em>good</em> — passing means only that the specific defects
+tested for were not found. For cryptography this caveat is load-bearing: NIST
+itself states that statistical testing "cannot serve as a substitute for
+cryptanalysis"
+<a class="cite" href="bibliography.html#nist2010">[NIST SP 800-22]</a>.
+</div>
+
+<h2 id="why">Why this matters</h2>
+<p>Pseudorandom number generators sit under Monte-Carlo simulation,
+statistical sampling, games, and every key ever generated. A defective
+generator silently corrupts results: the most famous example, IBM's RANDU,
+shipped in the 1960s and confined every consecutive triple of its outputs to
+15 planes in the unit cube — invisible in casual use, catastrophic for any
+3-dimensional simulation, and provable in two lines of modular arithmetic
+<a class="cite" href="bibliography.html#marsaglia1968">[Marsaglia 1968]</a>.
+You can <a href="classical.html#randu">rotate RANDU's point cloud yourself</a>
+on the classical-tests page and watch the planes snap into view.</p>
+
+<p>Hash functions face the same question from a different angle: a good hash
+should behave like a random function of its input. The
+<a href="hashing.html">hash-function page</a> covers the avalanche and
+bit-independence criteria, SMHasher, collision statistics, and the sharp
+lesson of MurmurHash — a hash that passed every statistical test yet fell to
+seed-independent collision attacks
+<a class="cite" href="bibliography.html#aumasson2012">[Aumasson &amp; Bernstein 2012]</a>.</p>
+
+<h2 id="map">How to read this site</h2>
+<table>
+<thead><tr><th>Page</th><th>What it covers</th></tr></thead>
+<tbody>
+<tr><td><a href="foundations.html">Foundations</a></td>
+    <td>The hypothesis-testing framework: p-values, chi-square,
+    Kolmogorov–Smirnov, two-level testing, and why p-values of a good
+    generator are themselves uniform. <em>Interactive:</em> watch a p-value
+    histogram tilt as you bias a coin.</td></tr>
+<tr><td><a href="classical.html">Classical tests</a></td>
+    <td>Knuth's catalog of empirical tests — frequency, serial, gap, poker,
+    runs, collisions, birthday spacings — plus the spectral test and the
+    RANDU story. <em>Interactive:</em> RANDU's 15 planes in 3-D.</td></tr>
+<tr><td><a href="diehard.html">Diehard</a> ·
+        <a href="dieharder.html">Dieharder</a> ·
+        <a href="nist-sts.html">NIST STS</a> ·
+        <a href="testu01.html">TestU01</a> ·
+        <a href="practrand.html">PractRand</a> ·
+        <a href="ent.html">ENT</a> ·
+        <a href="other-suites.html">Others</a></td>
+    <td>One page per major suite: its history, its constituent tests, what
+    each detects, input requirements, strengths, and known weaknesses.</td></tr>
+<tr><td><a href="hashing.html">Hash functions</a></td>
+    <td>Avalanche and SAC, bit independence, SMHasher, collision statistics
+    and the birthday bound, feeding hashes into PRNG suites, and why
+    statistical quality is not security. <em>Interactive:</em> avalanche
+    matrices of a weak and a strong mixer.</td></tr>
+<tr><td><a href="bibliography.html">Bibliography</a></td>
+    <td>Every source cited on the site, with links. Citations in the text
+    look like <a class="cite" href="bibliography.html#knuth1997">[Knuth 1997]</a>
+    and jump straight to the entry.</td></tr>
+</tbody>
+</table>
+
+<h2 id="timeline">Sixty years in one table</h2>
+<table>
+<thead><tr><th>Year</th><th>Milestone</th></tr></thead>
+<tbody>
+<tr><td class="num">1900</td><td>Pearson's chi-square test — the tool everything else is built on
+  <a class="cite" href="bibliography.html#pearson1900">[Pearson 1900]</a></td></tr>
+<tr><td class="num">1938</td><td>Kendall &amp; Babington Smith run frequency/serial/gap/poker tests on random digit tables — empirical testing begins</td></tr>
+<tr><td class="num">1963</td><td>RANDU ships with the IBM System/360 — the cautionary tale gets written</td></tr>
+<tr><td class="num">1968</td><td>Marsaglia: "Random numbers fall mainly in the planes"
+  <a class="cite" href="bibliography.html#marsaglia1968">[Marsaglia 1968]</a></td></tr>
+<tr><td class="num">1969</td><td>Knuth's <em>Seminumerical Algorithms</em> codifies the classical test catalog
+  <a class="cite" href="bibliography.html#knuth1997">[Knuth 1997]</a></td></tr>
+<tr><td class="num">1995</td><td>Marsaglia's Diehard battery — stringent tests that killed the textbook generators
+  <a class="cite" href="bibliography.html#marsaglia1995">[Marsaglia 1995]</a></td></tr>
+<tr><td class="num">2001</td><td>NIST SP 800-22: a standard battery for cryptographic RNG evaluation
+  <a class="cite" href="bibliography.html#nist2010">[NIST SP 800-22]</a></td></tr>
+<tr><td class="num">~2003</td><td>Dieharder: Diehard reborn as maintained open source
+  <a class="cite" href="bibliography.html#brown-dieharder">[Brown et al.]</a></td></tr>
+<tr><td class="num">2007</td><td>TestU01's Crush batteries reset the bar — many "good" generators fail
+  <a class="cite" href="bibliography.html#lecuyer2007">[L'Ecuyer &amp; Simard 2007]</a></td></tr>
+<tr><td class="num">~2010</td><td>PractRand tests unbounded streams; SMHasher does the same job for hash functions
+  <a class="cite" href="bibliography.html#doty-practrand">[Doty-Humphrey]</a>
+  <a class="cite" href="bibliography.html#appleby-smhasher">[Appleby]</a></td></tr>
+<tr><td class="num">2022–</td><td>NIST opens revision of SP 800-22, decoupling statistical testing from security claims
+  <a class="cite" href="bibliography.html#nist-review2022">[NIST review 2022]</a></td></tr>
+</tbody>
+</table>
+
+<h2 id="about">About this site</h2>
+<p>Every figure on this site is computed live in your browser by small,
+dependency-free JavaScript modules — the same statistics the text describes,
+run on generators seeded deterministically so you see what the text claims
+you'll see. The source is laid out and documented in the repository README,
+with cross-references between each page and the modules behind its figures.
+This site is a sibling of the
+<a href="https://sanya-shopper.github.io/distribs/"><strong>probsim</strong></a>
+project (<a href="https://github.com/sanya-shopper/distribs">source</a>) and
+follows its conventions: the published site lives in <code>docs/</code>,
+sources and documentation cross-reference each other, open-access
+references can be fetched locally by script, and structural tests enforce
+the sync. Where probsim's paper explains the chi-squared, Student-t and
+Gumbel distributions, this site shows the tests those distributions
+power.</p>
+
+</main>
+<footer class="site">
+  <p>Testing Randomness — background and review of statistical test suites
+  for PRNGs and hash functions. Sibling project of probsim.
+  Text and code in the public repository; see the README for a source map.
+  Citations link into the <a href="bibliography.html">bibliography</a>.</p>
+  <p>Source: <a href="https://github.com/sanya-shopper/randtests">github.com/sanya-shopper/randtests</a> — layout map in the <a href="https://github.com/sanya-shopper/randtests#layout">README</a>. Sibling project: <a href="https://sanya-shopper.github.io/distribs/">probsim</a>.</p>
+</footer>
+</body>
+</html>

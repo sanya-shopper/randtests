@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dieharder — Testing Randomness</title>
+<meta name="description" content="Dieharder, Robert G. Brown's open-source successor to Diehard: what it reimplements, what it adds, its p-value-of-p-values approach, and its known issues.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="classical.html">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html">Diehard</a>
+      <a href="dieharder.html" aria-current="page">Dieharder</a>
+      <a href="nist-sts.html">NIST STS</a>
+      <a href="testu01.html">TestU01</a>
+      <a href="practrand.html">PractRand</a>
+      <a href="ent.html">ENT</a>
+      <a href="other-suites.html">Others</a>
+      <a href="hashing.html">Hash functions</a>
+      <a href="bibliography.html">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>Dieharder (Brown, ~2003–)</h1>
+<p class="lede">Diehard, reborn as maintainable open source. Robert G. Brown
+of Duke University rebuilt Marsaglia's battery under the GPL, made every
+sample size a command-line parameter, wired it to the GNU Scientific
+Library, and changed the philosophy of the verdict: don't hand the user a
+p-value to squint at — repeat the test until a weak generator fails
+unambiguously.</p>
+
+<h2 id="history">History and design</h2>
+<p>Brown (with contributions from Dirk Eddelbuettel and David Bauer) wrote
+Dieharder as a "clean-room" reimplementation, named in tribute to Marsaglia.
+Diehard's Fortran-derived C was showing its age: fixed input files, fixed
+sample counts, no way to test a generator directly. Dieharder links against
+GSL, so it can test any of GSL's dozens of built-in generators by name, or
+consume raw binary from a file or stdin — which is what makes it the
+convenient harness for testing <em>anything</em> that can emit bytes,
+including <a href="hashing.html#hashprng">hash functions run in counter
+mode</a>
+<a class="cite" href="bibliography.html#brown-dieharder">[Brown et al.]</a>.</p>
+
+<h2 id="tests">What it contains</h2>
+<p>Three layers
+<a class="cite" href="bibliography.html#brown-dieharder">[Brown et al.]</a>:</p>
+<table>
+<thead><tr><th>Layer</th><th>Contents</th></tr></thead>
+<tbody>
+<tr><td>Diehard reimplementations</td>
+    <td>The full <a href="diehard.html#tests">Diehard battery</a> — birthday
+    spacings, OPERM5, the three matrix-rank tests, bitstream, OPSO/OQSO/DNA,
+    both count-the-1s tests, parking lot, minimum distance, 3-D spheres,
+    squeeze, sums, runs, craps — with adjustable sample counts.</td></tr>
+<tr><td>NIST STS ports</td>
+    <td>The <a href="nist-sts.html">STS</a> monobit, runs, and serial
+    tests.</td></tr>
+<tr><td>RGB &amp; contributed tests</td>
+    <td>Bit-distribution tests, a generalized minimum-distance test
+    (Fischler's d-dimensional extension), a non-overlapping permutations
+    test built to replace the buggy OPERM5, lagged sums, a
+    Kolmogorov–Smirnov validation test, and David Bauer's DAB set (byte
+    distribution, DCT, fill-tree, monobit2).</td></tr>
+</tbody>
+</table>
+
+<h2 id="pvalues">The p-value-of-p-values approach</h2>
+<p>Dieharder's defining habit is aggressive
+<a href="foundations.html#twolevel">two-level testing</a>. Each test is run
+many times (100 by default), and the batch of p-values is tested for
+uniformity with a Kuiper/KS statistic, producing a single second-level
+p-value reported as <span class="pass">PASSED</span>, WEAK, or
+<span class="fail">FAILED</span>. The point, in Brown's phrase, is to push
+weak generators to <em>unambiguous</em> failure: a marginal defect that
+yields an ambiguous p ≈ 0.03 in one run yields a vanishing second-level
+p-value once a hundred runs are aggregated — and the user can simply raise
+the repeat count until the ambiguity dissolves
+<a class="cite" href="bibliography.html#brown-dieharder">[Brown et al.]</a>.</p>
+
+<h2 id="issues">Known issues</h2>
+<p>Dieharder's own documentation is refreshingly blunt about which of its
+tests to trust
+<a class="cite" href="bibliography.html#brown-dieharder">[Brown et al.]</a>:
+OPERM5 remains suspect (the covariance bug inherited from
+<a href="diehard.html#assessment">Diehard</a>); the overlapping-sums test
+"produces systematically non-flat p-value distributions and should not be
+used"; and several monkey-test reference statistics are asymptotic
+approximations that drift when the sample count is turned far up — a general
+hazard of second-level testing noted on the
+<a href="foundations.html#twolevel">foundations page</a>. Community
+assessments add that some ported reference distributions were never
+rigorously re-derived, so WEAK verdicts on specific tests deserve suspicion
+of the <em>test</em>, not just the generator. Overall sensitivity sits well
+below <a href="testu01.html">BigCrush</a> and
+<a href="practrand.html">PractRand</a>.</p>
+
+<h2 id="assessment">Where it fits</h2>
+<p>Dieharder's contribution is operational, not statistical: it made serious
+testing a one-liner (<code>dieharder -a -g 201</code>), packaged in every
+Linux distribution, with clear verdicts. As a research instrument it has
+been superseded — the modern convention for vetting a new generator is
+BigCrush plus PractRand — but as the accessible first battery, and as
+scaffolding for piping arbitrary byte streams into a broad test collection,
+it remains the standard utility. Version 3.31.1 is effectively final;
+maintenance continues in community forks.</p>
+
+</main>
+<footer class="site">
+  <p>No figures on this page; the two-level machinery it describes is
+  demonstrated on <a href="foundations.html">Foundations</a>. Citations link
+  into the <a href="bibliography.html">bibliography</a>.</p>
+  <p>Source: <a href="https://github.com/sanya-shopper/randtests">github.com/sanya-shopper/randtests</a> — layout map in the <a href="https://github.com/sanya-shopper/randtests#layout">README</a>. Sibling project: <a href="https://sanya-shopper.github.io/distribs/">probsim</a>.</p>
+</footer>
+</body>
+</html>

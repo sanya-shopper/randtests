@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diehard — Testing Randomness</title>
+<meta name="description" content="Marsaglia's Diehard battery of tests of randomness: history, the full test list, strengths, weaknesses, and a live birthday-spacings demonstration.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="classical.html">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html" aria-current="page">Diehard</a>
+      <a href="dieharder.html">Dieharder</a>
+      <a href="nist-sts.html">NIST STS</a>
+      <a href="testu01.html">TestU01</a>
+      <a href="practrand.html">PractRand</a>
+      <a href="ent.html">ENT</a>
+      <a href="other-suites.html">Others</a>
+      <a href="hashing.html">Hash functions</a>
+      <a href="bibliography.html">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>Diehard (Marsaglia, 1995)</h1>
+<p class="lede">The battery that made randomness testing a contact sport.
+George Marsaglia had spent two decades showing that the generators everyone
+used were defective; Diehard packaged the demonstration as software anyone
+could run, and the textbook generators of the era did not survive it.</p>
+
+<h2 id="history">History and intent</h2>
+<p>Diehard shipped in 1995 on "The Marsaglia Random Number CDROM," an
+NSF-supported project from Florida State University that paired the test
+battery with five billion pre-tested random bits
+<a class="cite" href="bibliography.html#marsaglia1995">[Marsaglia 1995]</a>.
+The design brief was stringency. The <a href="classical.html">classical
+tests</a> were, by then, too easy: generators tuned to pass frequency, gap
+and poker tests could still carry lattice structure, bit-level correlations
+and rank defects. Marsaglia's tests attack exactly those weaknesses — many
+of them his own inventions from the preceding decades, including the
+birthday-spacings test
+<a class="cite" href="bibliography.html#marsaglia1985">[Marsaglia 1985]</a>
+and the monkey tests
+<a class="cite" href="bibliography.html#marsaglia1993">[Marsaglia &amp; Zaman 1993]</a>.</p>
+
+<h2 id="tests">The battery</h2>
+<table>
+<thead><tr><th>Test</th><th>Idea</th><th>Defect targeted</th></tr></thead>
+<tbody>
+<tr><td>Birthday spacings</td>
+    <td>Duplicate spacings among sorted random points ~ Poisson</td>
+    <td>Lattice structure (LCGs, lagged Fibonacci)</td></tr>
+<tr><td>Overlapping 5-permutations (OPERM5)</td>
+    <td>The 120 orderings of five consecutive values, equiprobable</td>
+    <td>Order-pattern bias</td></tr>
+<tr><td>Binary rank 31×31, 32×32</td>
+    <td>Ranks of bit matrices from consecutive words</td>
+    <td>Linear dependence between words</td></tr>
+<tr><td>Binary rank 6×8</td>
+    <td>Same, from bytes</td>
+    <td>Byte-level linear structure</td></tr>
+<tr><td>Bitstream</td>
+    <td>Missing 20-bit words in an overlapping bit stream</td>
+    <td>Gaps in bit-pattern coverage</td></tr>
+<tr><td>OPSO / OQSO / DNA</td>
+    <td>Missing 2-, 4-, 10-letter "words" over various alphabets</td>
+    <td>Bit-field correlations
+        (<a href="classical.html#overlapping">monkey tests</a>)</td></tr>
+<tr><td>Count-the-1s (stream and specific bytes)</td>
+    <td>Bit-counts of bytes as five-letter words, χ² on word frequencies</td>
+    <td>Bit-count bias, position-dependent bias</td></tr>
+<tr><td>Parking lot</td>
+    <td>Cars parked without overlap in a square; count after 12,000 tries</td>
+    <td>Subtle 2-D coupling</td></tr>
+<tr><td>Minimum distance</td>
+    <td>Closest pair among 8000 points in a square; squared distance ~ exponential</td>
+    <td>Planar clustering</td></tr>
+<tr><td>3-D spheres</td>
+    <td>Nearest-neighbour sphere volume for 4000 points in a cube ~ exponential</td>
+    <td>Spatial clustering in 3-D</td></tr>
+<tr><td>Squeeze</td>
+    <td>Iterations of k ← ⌈k·U⌉ from 2³¹ down to 1</td>
+    <td>Bias in floats near 0 and 1</td></tr>
+<tr><td>Overlapping sums</td>
+    <td>Sums of 100 consecutive uniforms ~ correlated normal</td>
+    <td>Long-range additive bias</td></tr>
+<tr><td>Runs</td>
+    <td>Monotone run lengths with covariance correction</td>
+    <td>Local trend structure</td></tr>
+<tr><td>Craps</td>
+    <td>200,000 games of craps: wins and throws per game vs theory</td>
+    <td>Composite, application-level defects</td></tr>
+</tbody>
+</table>
+
+<figure class="viz" id="viz-birthday">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>Try it — the signature test, live.</strong> 400
+  replications of the birthday-spacings test (n = 1024 birthdays on a year
+  of 2²⁴ days, so the duplicate-spacing count K should be Poisson with
+  λ = n³/4m = 16). The well-behaved generator hugs the dashed Poisson
+  curve. The defective generator is an LCG whose two lowest output bits are
+  stuck at zero — a 22-bit generator in 24-bit clothing, the classic
+  symptom of a power-of-two LCG's short-period low bits. Its outputs live
+  on a grid of step 4, the effective year shrinks to 2²², and K piles up
+  around 4×16 = 64 — an unmissable failure that no frequency test would
+  ever see, since every value is still perfectly equidistributed.
+  Computed live by
+  <code>assets/js/viz/birthday.js</code> with the generators in
+  <code>assets/js/prng.js</code>.</figcaption>
+</figure>
+
+<h2 id="input">Input requirements</h2>
+<p>Diehard reads a fixed binary file of about 10–12 MB of 32-bit integers —
+roughly 90 million bits — and each test uses hard-coded sample sizes; several
+examine only particular bit positions of each word. The format is a fossil
+of its era: big enough to embarrass 1990s generators, three orders of
+magnitude too small to trouble a modern one
+<a class="cite" href="bibliography.html#marsaglia1995">[Marsaglia 1995]</a>.</p>
+
+<h2 id="assessment">Strengths, weaknesses, legacy</h2>
+<p><span class="pass">Strengths.</span> Historically decisive: Diehard
+retired a generation of defective generators and set the adversarial tone
+every later suite inherited. Most of its test ideas — birthday spacings,
+matrix rank, sparse occupancy, minimum distance — remain in active service
+inside <a href="dieharder.html">Dieharder</a>,
+<a href="testu01.html">TestU01</a> and <a href="practrand.html">PractRand</a>.</p>
+
+<p><span class="fail">Weaknesses.</span> Fixed, unadjustable sample sizes and
+a tiny (by modern standards) input file — the two limitations L'Ecuyer and
+Simard cite as motivation for TestU01
+<a class="cite" href="bibliography.html#lecuyer2007">[L'Ecuyer &amp; Simard 2007]</a>.
+The user must interpret raw p-values by eye, with Marsaglia's own wry warning
+that "p happens": isolated extreme p-values occur even for perfect input.
+OPERM5's covariance matrix has a long-documented bug, and the overlapping-sums
+reference distribution is systematically wrong — both defects inherited and
+flagged by Dieharder
+<a class="cite" href="bibliography.html#brown-dieharder">[Brown et al.]</a>.
+It was never designed for cryptographic evaluation.</p>
+
+<p><span class="pass">Legacy.</span> Unmaintained since Marsaglia's death in
+2011, with the original FSU site surviving only in mirrors and archives. Its
+successors are the next three pages: <a href="dieharder.html">Dieharder</a>
+reimplemented and parameterised it, <a href="nist-sts.html">NIST STS</a>
+standardised the cryptographic corner, and
+<a href="testu01.html">TestU01</a> out-stringencied it — completing the cycle
+Diehard itself began, since generators that pass Diehard fail Crush by the
+dozen
+<a class="cite" href="bibliography.html#lecuyer2007">[L'Ecuyer &amp; Simard 2007]</a>.</p>
+
+</main>
+<footer class="site">
+  <p>Figures on this page: <code>assets/js/viz/birthday.js</code> — see
+  README § Visualizations. Citations link into the
+  <a href="bibliography.html">bibliography</a>.</p>
+  <p>Source: <a href="https://github.com/sanya-shopper/randtests">github.com/sanya-shopper/randtests</a> — layout map in the <a href="https://github.com/sanya-shopper/randtests#layout">README</a>. Sibling project: <a href="https://sanya-shopper.github.io/distribs/">probsim</a>.</p>
+</footer>
+<script type="module">
+  import initBirthday from "./assets/js/viz/birthday.js";
+  initBirthday(document.getElementById("viz-birthday"));
+</script>
+</body>
+</html>

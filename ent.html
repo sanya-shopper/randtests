@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENT — Testing Randomness</title>
+<meta name="description" content="John Walker's ENT: five quick statistics — entropy, chi-square, mean, Monte-Carlo pi, serial correlation — and why it is a smoke test, not a suite. With a live in-browser implementation.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="classical.html">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html">Diehard</a>
+      <a href="dieharder.html">Dieharder</a>
+      <a href="nist-sts.html">NIST STS</a>
+      <a href="testu01.html">TestU01</a>
+      <a href="practrand.html">PractRand</a>
+      <a href="ent.html" aria-current="page">ENT</a>
+      <a href="other-suites.html">Others</a>
+      <a href="hashing.html">Hash functions</a>
+      <a href="bibliography.html">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>ENT (Walker)</h1>
+<p class="lede">The ten-second answer. John Walker's ENT reads any file and
+prints five numbers. It cannot certify randomness — it exists to catch the
+gross failures before you spend compute on the real suites
+<a class="cite" href="bibliography.html#walker2008">[Walker 2008]</a>.</p>
+
+<h2 id="stats">What ENT computes</h2>
+<table>
+<thead><tr><th>Statistic</th><th>Ideal for random bytes</th><th>What a deviation means</th></tr></thead>
+<tbody>
+<tr><td>Entropy</td><td>8.000 bits/byte</td>
+    <td>The file is compressible — some byte values dominate</td></tr>
+<tr><td>Chi-square (byte frequencies, 255 df)</td>
+    <td>p-value not near 0 or 1</td>
+    <td>Symbol-frequency bias; ENT reports how often true randomness would
+    exceed the observed χ² — outside 5–95% is suspect, outside 1–99% nearly
+    conclusive</td></tr>
+<tr><td>Arithmetic mean</td><td>127.5</td>
+    <td>Global bias toward high or low byte values</td></tr>
+<tr><td>Monte-Carlo π</td><td>≈ 3.14159</td>
+    <td>Byte-pairs, read as 2-D points, don't fill the square evenly</td></tr>
+<tr><td>Serial correlation</td><td>≈ 0</td>
+    <td>Each byte predicts its successor — first-order dependence</td></tr>
+</tbody>
+</table>
+
+<figure class="viz" id="viz-ent">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>Try it — ENT reimplemented in your browser.</strong>
+  The same five statistics (implementation:
+  <code>assets/js/stats.js § entStats</code>, following Walker's
+  definitions), computed over 64 KiB from four sources. English text fails
+  everything at a glance. But notice the trap: RANDU — the
+  <a href="classical.html#randu">catastrophically broken generator</a> —
+  produces flawless ENT numbers. Five first-order statistics cannot see
+  lattice structure, which is precisely why ENT is a smoke test and not a
+  verdict. Wiring: <code>assets/js/viz/entlive.js</code>.</figcaption>
+</figure>
+
+<h2 id="assessment">Why it's only a smoke test</h2>
+<p>ENT's statistics see byte frequencies and lag-1 correlation, nothing
+else. Any structure living in pairs-of-pairs, bit planes, long-range
+correlations, or lattice geometry — that is, essentially every defect the
+<a href="diehard.html">real</a> <a href="testu01.html">suites</a> exist to
+catch — is invisible to it. A counter run through even a mediocre mixing
+function scores perfectly. The legitimate uses are quick triage: is this
+"random" file actually text? Did the hardware source get stuck? Is this
+data already compressed or encrypted? For those questions five numbers in
+ten seconds is exactly the right tool, which is why the little utility from
+the 1990s is still packaged everywhere; current source is maintained on
+Fourmilab's GitHub
+<a class="cite" href="bibliography.html#walker2008">[Walker 2008]</a>.</p>
+
+</main>
+<footer class="site">
+  <p>Figures on this page: <code>assets/js/viz/entlive.js</code> backed by
+  <code>assets/js/stats.js</code> — see README § Visualizations. Citations
+  link into the <a href="bibliography.html">bibliography</a>.</p>
+  <p>Source: <a href="https://github.com/sanya-shopper/randtests">github.com/sanya-shopper/randtests</a> — layout map in the <a href="https://github.com/sanya-shopper/randtests#layout">README</a>. Sibling project: <a href="https://sanya-shopper.github.io/distribs/">probsim</a>.</p>
+</footer>
+<script type="module">
+  import initEnt from "./assets/js/viz/entlive.js";
+  initEnt(document.getElementById("viz-ent"));
+</script>
+</body>
+</html>

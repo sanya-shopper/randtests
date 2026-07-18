@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NIST SP 800-22 — Testing Randomness</title>
+<meta name="description" content="The NIST Statistical Test Suite (SP 800-22): all fifteen tests, the two-level evaluation procedure, published criticisms, and current status — with a random-walk visualization.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+</head>
+<body>
+<header class="site">
+  <div class="inner">
+    <a class="title" href="index.html">Testing Randomness</a>
+    <nav class="site">
+      <a href="index.html">Overview</a>
+      <a href="foundations.html">Foundations</a>
+      <a href="classical.html">Classical tests</a>
+      <span class="group">Suites:</span>
+      <a href="diehard.html">Diehard</a>
+      <a href="dieharder.html">Dieharder</a>
+      <a href="nist-sts.html" aria-current="page">NIST STS</a>
+      <a href="testu01.html">TestU01</a>
+      <a href="practrand.html">PractRand</a>
+      <a href="ent.html">ENT</a>
+      <a href="other-suites.html">Others</a>
+      <a href="hashing.html">Hash functions</a>
+      <a href="bibliography.html">Bibliography</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<h1>NIST SP 800-22 (the Statistical Test Suite)</h1>
+<p class="lede">The battery with a badge. Published in 2001 and revised
+through 2010, NIST's Statistical Test Suite grew out of the AES
+competition's need to check candidate ciphers' output streams, and became
+the test suite that certification regimes name explicitly — which makes both
+its contents and its documented flaws consequential
+<a class="cite" href="bibliography.html#nist2010">[NIST SP 800-22]</a>.</p>
+
+<h2 id="tests">The fifteen tests</h2>
+<p>All operate on a bit sequence of length n (10⁶ bits is the customary
+configuration). Nearly every one funnels into the
+<a href="foundations.html#chisquare">chi-square/igamc machinery</a> or the
+complementary error function.</p>
+
+<table>
+<thead><tr><th>#</th><th>Test</th><th>What it examines</th><th>Rejects when…</th></tr></thead>
+<tbody>
+<tr><td class="num">1</td><td>Frequency (monobit)</td>
+    <td>Overall balance of 0s and 1s</td>
+    <td>Global bias — the prerequisite for everything else</td></tr>
+<tr><td class="num">2</td><td>Block frequency</td>
+    <td>1s proportion within M-bit blocks</td>
+    <td>Locally concentrated bias that cancels globally</td></tr>
+<tr><td class="num">3</td><td>Runs</td>
+    <td>Total number of 0/1 runs</td>
+    <td>Oscillation too fast or too slow</td></tr>
+<tr><td class="num">4</td><td>Longest run of ones</td>
+    <td>Longest 1-run per block vs the Erdős–Rényi-type law
+        (<a href="classical.html#overlapping">classical page</a>)</td>
+    <td>Clustering of ones</td></tr>
+<tr><td class="num">5</td><td>Binary matrix rank</td>
+    <td>Ranks of 32×32 bit matrices</td>
+    <td>Linear dependence among substrings
+        (<a href="classical.html#linearity">GF(2) linearity</a>)</td></tr>
+<tr><td class="num">6</td><td>DFT (spectral)</td>
+    <td>Peak counts in the discrete Fourier transform</td>
+    <td>Periodic features</td></tr>
+<tr><td class="num">7</td><td>Non-overlapping template</td>
+    <td>Occurrences of fixed aperiodic patterns, disjoint scan</td>
+    <td>Too many copies of particular patterns</td></tr>
+<tr><td class="num">8</td><td>Overlapping template</td>
+    <td>Occurrences of runs-of-ones templates, sliding scan</td>
+    <td>Same, with overlap-aware distribution theory</td></tr>
+<tr><td class="num">9</td><td>Maurer's universal</td>
+    <td>Distances between pattern recurrences (compressibility)</td>
+    <td>Sequence is significantly compressible</td></tr>
+<tr><td class="num">10</td><td>Linear complexity</td>
+    <td>LFSR length of blocks via Berlekamp–Massey</td>
+    <td>Bits satisfy short linear recurrences</td></tr>
+<tr><td class="num">11</td><td>Serial</td>
+    <td>Frequencies of all overlapping m-bit patterns
+        (Good's corrected statistic
+        <a class="cite" href="bibliography.html#good1953">[Good 1953]</a>)</td>
+    <td>m-tuple nonuniformity</td></tr>
+<tr><td class="num">12</td><td>Approximate entropy</td>
+    <td>Overlapping m- vs (m+1)-block frequencies</td>
+    <td>Excess regularity</td></tr>
+<tr><td class="num">13</td><td>Cumulative sums</td>
+    <td>Maximum excursion of the ±1 partial-sum walk</td>
+    <td>Bias concentrated early or late</td></tr>
+<tr><td class="num">14</td><td>Random excursions</td>
+    <td>Visit counts to states ±1…±4 per zero-crossing cycle</td>
+    <td>Walk-state occupancy off theory (8 p-values)</td></tr>
+<tr><td class="num">15</td><td>Random excursions variant</td>
+    <td>Total visits to states ±1…±9</td>
+    <td>Related occupancy defects (18 p-values)</td></tr>
+</tbody>
+</table>
+
+<figure class="viz" id="viz-walk">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>Why tests 13–15 need strange null distributions.</strong>
+  Left: five perfectly fair ±1 walks — note how far they wander and how long
+  they linger on one side. Right: across 3000 fair walks, the fraction of
+  time spent above zero follows the arcsine law — piled at the extremes,
+  <em>thinnest</em> at ½ [Feller 1968]. Intuition expects a fair walk to
+  spend about half its time positive; real randomness does the opposite, and
+  the cusum and random-excursions tests are calibrated to that
+  counterintuitive truth. A generator "corrected" to look balanced would
+  fail them. Computed live by <code>assets/js/viz/walk.js</code>.</figcaption>
+</figure>
+
+<h2 id="twolevel">The two-level evaluation</h2>
+<p>SP 800-22 institutionalises the
+<a href="foundations.html#twolevel">two-level scheme</a>. Test m sequences
+(say 1000 × 10⁶ bits) at α = 0.01; then, per test
+<a class="cite" href="bibliography.html#nist2010">[NIST SP 800-22]</a>:</p>
+<p class="math">
+proportion check: pass rate within (1−α) ± 3·√(α(1−α)/m) — for m = 1000,
+roughly 0.981 to 0.999<br>
+uniformity check: bin the m p-values into 10 cells, χ² with 9 df, require
+P-value<sub>T</sub> = igamc(9/2, χ²/2) ≥ 0.0001
+</p>
+
+<h2 id="criticisms">Published criticisms</h2>
+<p>Being the compliance battery has drawn two decades of scrutiny, much of
+it substantiated. The DFT test's original reference distribution was simply
+wrong — corrected constants were derived by Kim, Umeno and Hasegawa and the
+test has been re-analysed repeatedly since
+<a class="cite" href="bibliography.html#kim2004">[Kim et al. 2004]</a>;
+the related Lempel–Ziv test was dropped in the 2008 revision. The fifteen
+tests are far from independent — approximate entropy overlaps serial, cusum
+overlaps frequency — so "passed 15 of 15" overstates the evidence
+<a class="cite" href="bibliography.html#sonmezturan2023">[Appl. Math. Comput. 2023]</a>.
+The second-level procedure itself has documented inaccuracies: Pareschi,
+Rovatti and Setti showed the pass-proportion approximation misbehaves at
+standard settings
+<a class="cite" href="bibliography.html#pareschi2012">[Pareschi et al. 2012]</a>,
+and stronger second-level procedures were proposed at ASIACRYPT 2016
+<a class="cite" href="bibliography.html#zhu2016">[Zhu et al. 2016]</a>.
+Above all, the suite's discriminating power is modest: generators that sail
+through SP 800-22 fail <a href="testu01.html">Crush</a> or
+<a href="practrand.html">PractRand</a> within minutes
+<a class="cite" href="bibliography.html#lecuyer2007">[L'Ecuyer &amp; Simard 2007]</a>.</p>
+
+<p>NIST opened a formal revision in 2022 through its Crypto Publication
+Review Project; the direction of travel, argued in the public comments, is
+to decouple the battery from cryptographic-security claims — statistical
+testing as sanity check, cryptanalysis as the real bar
+<a class="cite" href="bibliography.html#nist-review2022">[NIST review 2022]</a>.
+The document itself has always said as much: statistical testing "cannot
+serve as a substitute for cryptanalysis"
+<a class="cite" href="bibliography.html#nist2010">[NIST SP 800-22]</a>.</p>
+
+<div class="note">
+For entropy <em>sources</em> (as opposed to deterministic generators), NIST
+uses a different instrument entirely — SP 800-90B's entropy estimation and
+continuous health tests, covered on the
+<a href="other-suites.html#sp80090b">other suites</a> page.
+</div>
+
+<h2 id="assessment">Where it fits</h2>
+<p><span class="pass">Strengths.</span> A freely available, documented,
+standard battery with reference code; the two-level methodology is spelled
+out precisely; it remains the shared vocabulary of certification labs, and
+its tests (rank, linear complexity, Maurer universal, excursions) are solid
+ideas drawn from real cryptanalytic concerns.</p>
+<p><span class="fail">Weaknesses.</span> Known statistical errors, correlated
+tests, a fragile second level, and power far below the modern suites — a
+2001 instrument still doing a 2026 job while its revision is pending.</p>
+
+</main>
+<footer class="site">
+  <p>Figures on this page: <code>assets/js/viz/walk.js</code> — see
+  README § Visualizations. Citations link into the
+  <a href="bibliography.html">bibliography</a>.</p>
+  <p>Source: <a href="https://github.com/sanya-shopper/randtests">github.com/sanya-shopper/randtests</a> — layout map in the <a href="https://github.com/sanya-shopper/randtests#layout">README</a>. Sibling project: <a href="https://sanya-shopper.github.io/distribs/">probsim</a>.</p>
+</footer>
+<script type="module">
+  import initWalk from "./assets/js/viz/walk.js";
+  initWalk(document.getElementById("viz-walk"));
+</script>
+</body>
+</html>
