@@ -51,6 +51,23 @@ PractRand's binary-rank test at the quarter-terabyte scale; weak xorshift
 variants die in megabytes
 <a class="cite" href="bibliography.html#oneill2017">[O'Neill 2017]</a>.</p>
 
+<figure class="viz" id="viz-streamfail">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>Explore — how many bits to a verdict?</strong> A
+  miniature of PractRand's scheme: a monobit statistic re-evaluated at
+  doubling checkpoints as the stream grows, with the evidence −log₁₀(p)
+  climbing past PractRand-style verdict lines from "unusual" to
+  <span class="fail">FAIL</span>. Pick a defect size and watch the
+  square-law at work: evidence grows like n·ε², so ε = +0.004 dies in a few
+  hundred kilobits, +0.002 needs ~4× longer, +0.001 ~16×, and +0.0005
+  survives this demo's 4-Mbit cap entirely — not because it is good, but
+  because the stream ended first. That censoring is the philosophy's point:
+  "first failure at N" is a measurement, "survived the cap" is only a lower
+  bound. (PractRand's cap is 32 TB; scale accordingly.) Computed live by
+  <code>assets/js/viz/streamfail.js</code>.</figcaption>
+</figure>
+
 <h2 id="tests">The core tests</h2>
 <table>
 <thead><tr><th>Test</th><th>What it does</th></tr></thead>
@@ -110,10 +127,15 @@ magnitude beyond BigCrush, five beyond NIST.
 
 </main>
 <footer class="site">
-  <p>No figures on this page; PractRand's scale appears in the battery
-  comparison on <a href="testu01.html">TestU01</a>. Citations link into the
+  <p>Figures on this page: <code>assets/js/viz/streamfail.js</code> — see
+  README § Layout; PractRand's scale also appears in the battery comparison
+  on <a href="testu01.html">TestU01</a>. Citations link into the
   <a href="bibliography.html">bibliography</a>.</p>
   <p>Source: <a href="https://github.com/sanya-shopper/randtests">github.com/sanya-shopper/randtests</a> — layout map in the <a href="https://github.com/sanya-shopper/randtests#layout">README</a>. Sibling project: <a href="https://sanya-shopper.github.io/distribs/">probsim</a>.</p>
 </footer>
+<script type="module">
+  import initStreamfail from "./assets/js/viz/streamfail.js";
+  initStreamfail(document.getElementById("viz-streamfail"));
+</script>
 </body>
 </html>

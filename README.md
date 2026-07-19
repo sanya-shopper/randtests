@@ -45,7 +45,11 @@ Live site: <https://sanya-shopper.github.io/randtests/>
 | `docs/assets/js/viz/walk.js` | Random-walk excursions and the arcsine law | nist-sts.html |
 | `docs/assets/js/viz/batteries.js` | Log-scale comparison of suite data appetites | testu01.html |
 | `docs/assets/js/viz/entlive.js` | ENT's five statistics computed in-browser | ent.html |
-| `docs/assets/js/viz/avalanche.js` | Avalanche matrices of a weak vs strong mixer | hashing.html |
+| `docs/assets/js/viz/avalanche.js` | Avalanche matrices, selectable mixer library | hashing.html |
+| `docs/assets/js/viz/collisions.js` | Birthday-bound explorer: expected vs observed collisions | hashing.html |
+| `docs/assets/js/viz/twolevel.js` | Dieharder-style second-level KS verdicts on streamed p-values | dieharder.html |
+| `docs/assets/js/viz/streamfail.js` | PractRand-style doubling checkpoints: bits until failure | practrand.html |
+| `docs/assets/js/viz/defectmap.js` | Defect × test coverage map (accessible HTML table) | index.html |
 | `tests/stats.test.mjs` | Unit tests for stats.js and prng.js against closed forms | README § Testing |
 | `tests/check-site.mjs` | Structural tests: links, anchors, citations, README↔source sync | README § Testing |
 | `scripts/fetch_refs.sh` | Downloads open-access reference PDFs into `refs/` | refs/README.md |

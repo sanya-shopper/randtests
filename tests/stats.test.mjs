@@ -14,6 +14,7 @@ import assert from "node:assert/strict";
 
 import {
   lnGamma, gammaP, chi2PValue, chiSquareTest, entStats, histogram01,
+  kolmogorovQ, ksUniformTest, normalTwoSidedP,
 } from "../docs/assets/js/stats.js";
 import { randu, mulberry32, biasedBits, weakLcg24 } from "../docs/assets/js/prng.js";
 
@@ -114,6 +115,35 @@ test("entStats flags text and accepts uniform bytes", () => {
   const t = entStats(text);
   assert.ok(t.entropy < 5, `text entropy should be low, got ${t.entropy}`);
   assert.ok(t.chi2P < 1e-6, "text should fail the chi-square test");
+});
+
+test("kolmogorovQ matches standard KS critical values", () => {
+  // Classic asymptotic critical values: Q(1.358)≈0.05, Q(1.628)≈0.01,
+  // Q(1.224)≈0.10 (any KS table).
+  close(kolmogorovQ(1.358), 0.05, 2e-3);
+  close(kolmogorovQ(1.628), 0.01, 1e-3);
+  close(kolmogorovQ(1.224), 0.10, 3e-3);
+  close(kolmogorovQ(0), 1, 1e-12);
+});
+
+test("ksUniformTest accepts uniform data and rejects shifted data", () => {
+  // Deterministic near-uniform sample: stratified points i+0.5 / n.
+  const n = 200;
+  const uniform = Array.from({ length: n }, (_, i) => (i + 0.5) / n);
+  const u = ksUniformTest(uniform);
+  assert.ok(u.d < 0.01, `stratified sample should have tiny D, got ${u.d}`);
+  assert.ok(u.p > 0.9, `stratified sample should not be rejected, p=${u.p}`);
+
+  // Squared uniforms pile up near 0 — must be rejected decisively.
+  const skew = uniform.map((v) => v * v);
+  const s = ksUniformTest(skew);
+  assert.ok(s.p < 1e-6, `x² sample must fail KS, p=${s.p}`);
+});
+
+test("normalTwoSidedP matches standard normal tables", () => {
+  close(normalTwoSidedP(1.96), 0.05, 5e-4);
+  close(normalTwoSidedP(2.5758), 0.01, 5e-4);
+  close(normalTwoSidedP(0), 1, 1e-12);
 });
 
 test("histogram01 bins correctly, including the top edge", () => {

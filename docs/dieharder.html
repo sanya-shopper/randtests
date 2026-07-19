@@ -87,6 +87,24 @@ p-value once a hundred runs are aggregated — and the user can simply raise
 the repeat count until the ambiguity dissolves
 <a class="cite" href="bibliography.html#brown-dieharder">[Brown et al.]</a>.</p>
 
+<figure class="viz" id="viz-twolevel">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>Explore — the verdict machine.</strong> Dieharder's
+  scheme, live: each first-level run is a chi-square frequency test on 2000
+  bits; the staircase is the empirical CDF of the accumulated p-values
+  against the uniform diagonal, and the red segment marks the largest gap —
+  the KS statistic <var>D</var> that becomes the second-level p-value
+  (thresholds as in dieharder: below 0.005 WEAK, below 10⁻⁶
+  <span class="fail">FAILED</span>). At bias 0.505 with 50 repeats the
+  verdict wobbles between runs — exactly the ambiguity Brown designed
+  against; raise the repeats to 800 and it locks to FAILED every time.
+  Slide back to 0.500 and no amount of repetition manufactures a failure:
+  the second level amplifies real signals, not noise. Computed live by
+  <code>assets/js/viz/twolevel.js</code> on the KS machinery in
+  <code>assets/js/stats.js</code>.</figcaption>
+</figure>
+
 <h2 id="issues">Known issues</h2>
 <p>Dieharder's own documentation is refreshingly blunt about which of its
 tests to trust
@@ -116,10 +134,14 @@ maintenance continues in community forks.</p>
 
 </main>
 <footer class="site">
-  <p>No figures on this page; the two-level machinery it describes is
-  demonstrated on <a href="foundations.html">Foundations</a>. Citations link
-  into the <a href="bibliography.html">bibliography</a>.</p>
+  <p>Figures on this page: <code>assets/js/viz/twolevel.js</code> — see
+  README § Layout. Citations link into the
+  <a href="bibliography.html">bibliography</a>.</p>
   <p>Source: <a href="https://github.com/sanya-shopper/randtests">github.com/sanya-shopper/randtests</a> — layout map in the <a href="https://github.com/sanya-shopper/randtests#layout">README</a>. Sibling project: <a href="https://sanya-shopper.github.io/distribs/">probsim</a>.</p>
 </footer>
+<script type="module">
+  import initTwolevel from "./assets/js/viz/twolevel.js";
+  initTwolevel(document.getElementById("viz-twolevel"));
+</script>
 </body>
 </html>

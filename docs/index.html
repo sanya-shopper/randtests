@@ -104,6 +104,24 @@ seed-independent collision attacks
 </tbody>
 </table>
 
+<h2 id="defectmap">Which test sees which defect</h2>
+<p>The organising fact of the field: tests and defects pair up. A battery
+is a portfolio of narrow instruments, and the interesting cells are the
+blind ones — whole rows of respectable tests that a specific defect walks
+straight past. Hover any cell for the one-line reason; every claim links to
+the page that defends it.</p>
+
+<figure class="viz" id="viz-defectmap">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>● catches it · ◐ partial · &nbsp;·&nbsp; blind.</strong>
+  Read it row-wise for the site's two favourite stories: the RANDU row is
+  blank until the birthday-spacings column, and the Mersenne-Twister row is
+  blank until rank/linear-complexity — each an entire generation of testing
+  blind to a defect one aimed test sees instantly. Rendered as an
+  accessible HTML table by <code>assets/js/viz/defectmap.js</code>.</figcaption>
+</figure>
+
 <h2 id="timeline">Sixty years in one table</h2>
 <table>
 <thead><tr><th>Year</th><th>Milestone</th></tr></thead>
@@ -156,5 +174,9 @@ power.</p>
   Citations link into the <a href="bibliography.html">bibliography</a>.</p>
   <p>Source: <a href="https://github.com/sanya-shopper/randtests">github.com/sanya-shopper/randtests</a> — layout map in the <a href="https://github.com/sanya-shopper/randtests#layout">README</a>. Sibling project: <a href="https://sanya-shopper.github.io/distribs/">probsim</a>.</p>
 </footer>
+<script type="module">
+  import initDefectmap from "./assets/js/viz/defectmap.js";
+  initDefectmap(document.getElementById("viz-defectmap"));
+</script>
 </body>
 </html>
