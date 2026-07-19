@@ -101,6 +101,23 @@ structure. Distribution tests do the same for bucket occupancy via
 chi-square. These are the <a href="classical.html#catalog">collision and
 equidistribution tests</a> wearing hash-function clothes.</p>
 
+<figure class="viz" id="viz-collisions">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>Explore — the bound as an experiment.</strong>
+  Counter keys 0…n−1 hashed into 2<sup>b</sup> buckets, colliding pairs
+  counted against E[C] = n(n−1)/2<sup>b+1</sup>. The random oracle and
+  murmur3's fmix32 both track the expectation as you slide n and b — that
+  agreement is what "behaves like a random function" means operationally.
+  The multiply-only hash lands far <em>below</em> expectation: Fibonacci
+  hashing spreads a counter almost perfectly evenly, giving nearly zero
+  collisions. Statistically that is a loud failure (too regular to be
+  random — the suites flag both tails); practically a hash-table author
+  might love it. Keep both readings in mind: the tests measure randomness,
+  and randomness is not always the engineering goal. Computed live by
+  <code>assets/js/viz/collisions.js</code>.</figcaption>
+</figure>
+
 <h2 id="smhasher">SMHasher and its descendants</h2>
 <p>Austin Appleby's SMHasher (~2010) did for non-cryptographic hashes what
 <a href="diehard.html">Diehard</a> did for generators: packaged the
@@ -218,14 +235,16 @@ asymmetry</a>, with an adversary attached.
 
 </main>
 <footer class="site">
-  <p>Figures on this page: <code>assets/js/viz/avalanche.js</code> — see
-  README § Visualizations. Citations link into the
-  <a href="bibliography.html">bibliography</a>.</p>
+  <p>Figures on this page: <code>assets/js/viz/avalanche.js</code> and
+  <code>assets/js/viz/collisions.js</code> — see README § Layout. Citations
+  link into the <a href="bibliography.html">bibliography</a>.</p>
   <p>Source: <a href="https://github.com/sanya-shopper/randtests">github.com/sanya-shopper/randtests</a> — layout map in the <a href="https://github.com/sanya-shopper/randtests#layout">README</a>. Sibling project: <a href="https://sanya-shopper.github.io/distribs/">probsim</a>.</p>
 </footer>
 <script type="module">
   import initAvalanche from "./assets/js/viz/avalanche.js";
+  import initCollisions from "./assets/js/viz/collisions.js";
   initAvalanche(document.getElementById("viz-avalanche"));
+  initCollisions(document.getElementById("viz-collisions"));
 </script>
 </body>
 </html>

@@ -1,10 +1,12 @@
 /* stats.js — the statistical machinery shared by the visualizations:
  * chi-square goodness of fit, the regularized incomplete gamma function it
- * needs, and byte-stream summary statistics in the style of ENT.
+ * needs, Kolmogorov–Smirnov uniformity testing (the engine of two-level
+ * testing), and byte-stream summary statistics in the style of ENT.
  *
- * Formulas follow foundations.html (chi-square, p-values) and ent.html
- * (stream statistics); the pages cite the primary sources. Unit tests with
- * known reference values live in tests/stats.test.mjs — run `node --test`.
+ * Formulas follow foundations.html (chi-square, KS, p-values), ent.html
+ * (stream statistics) and dieharder.html (second-level KS); the pages cite
+ * the primary sources. Unit tests with known reference values live in
+ * tests/stats.test.mjs — run `node --test tests/*.mjs`.
  */
 
 /** Natural log of the gamma function (Lanczos approximation, g = 7).
@@ -125,6 +127,51 @@ export function entStats(bytes) {
   const serialCorrelation = den === 0 ? NaN : num / den;
 
   return { entropy, chi2, chi2P: p, mean: sum / n, piEstimate, serialCorrelation };
+}
+
+/** Kolmogorov distribution tail Q(λ) = 2·Σ_{k≥1} (−1)^{k−1} e^{−2k²λ²} —
+ *  the limiting P(√n·D_n > λ) for the KS statistic under H₀
+ *  (foundations.html § Kolmogorov–Smirnov). Converges in a handful of
+ *  terms for the λ values that matter. */
+export function kolmogorovQ(lambda) {
+  if (lambda <= 0) return 1;
+  let sum = 0;
+  for (let k = 1; k <= 100; k++) {
+    const term = 2 * (k % 2 ? 1 : -1) * Math.exp(-2 * k * k * lambda * lambda);
+    sum += term;
+    if (Math.abs(term) < 1e-12) break;
+  }
+  return Math.min(1, Math.max(0, sum));
+}
+
+/** One-sample KS test of `values` against Uniform[0,1) — the second-level
+ *  test that dieharder applies to batches of first-level p-values
+ *  (dieharder.html § The p-value-of-p-values approach). Returns the KS
+ *  statistic D, the second-level p-value (with the Stephens small-sample
+ *  correction λ = (√n + 0.12 + 0.11/√n)·D), and the location of the
+ *  largest ECDF gap for the figures to highlight. */
+export function ksUniformTest(values) {
+  const n = values.length;
+  if (n === 0) return { d: 0, p: 1, at: 0 };
+  const sorted = [...values].sort((a, b) => a - b);
+  let d = 0, at = 0;
+  for (let i = 0; i < n; i++) {
+    const above = (i + 1) / n - sorted[i];  // ECDF steps up at sorted[i]
+    const below = sorted[i] - i / n;
+    if (above > d) { d = above; at = sorted[i]; }
+    if (below > d) { d = below; at = sorted[i]; }
+  }
+  const lambda = (Math.sqrt(n) + 0.12 + 0.11 / Math.sqrt(n)) * d;
+  return { d, p: kolmogorovQ(lambda), at };
+}
+
+/** Two-sided p-value of a standard-normal z (via erfc identity, using the
+ *  incomplete gamma: erfc(x) = Q(1/2, x²) for x ≥ 0). Used by the
+ *  stream-testing demo (viz/streamfail.js) for the monobit statistic. */
+export function normalTwoSidedP(z) {
+  const x = Math.abs(z) / Math.SQRT2;
+  const erfc = 1 - gammaP(0.5, x * x);
+  return Math.min(1, erfc);
 }
 
 /** Histogram helper: bin values from [0, 1) into k equal bins. */

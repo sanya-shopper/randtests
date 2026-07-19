@@ -238,3 +238,26 @@ figure.viz textarea {
   border-radius: 6px;
 }
 figure.viz .controls .hint { color: var(--muted); }
+
+/* Defect × test coverage map (viz/defectmap.js on index.html) */
+table.defectmap { font-size: 0.82rem; }
+table.defectmap th { font-weight: 600; }
+table.defectmap thead th { vertical-align: bottom; }
+table.defectmap thead a, table.defectmap tbody th a {
+  color: var(--ink-2);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--muted);
+}
+table.defectmap thead a:hover, table.defectmap tbody th a:hover { color: var(--accent); }
+table.defectmap td {
+  text-align: center;
+  font-size: 1.05rem;
+  cursor: default;
+}
+table.defectmap td.dm-2 { color: var(--accent); font-weight: 700; }
+table.defectmap td.dm-1 { color: var(--series-4); }
+table.defectmap td.dm-0 { color: var(--muted); }
+table.defectmap td:hover, table.defectmap td:focus {
+  background: var(--page);
+  outline: none;
+}
