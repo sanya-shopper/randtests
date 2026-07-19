@@ -105,17 +105,18 @@ and the monkey tests
 <figure class="viz" id="viz-birthday">
   <div class="controls"></div>
   <div class="plot"></div>
-  <figcaption><strong>Try it — the signature test, live.</strong> 400
-  replications of the birthday-spacings test (n = 1024 birthdays on a year
+  <figcaption><strong>Explore — the signature test with a severity
+  dial.</strong> Replications stream in live: n = 1024 birthdays on a year
   of 2²⁴ days, so the duplicate-spacing count K should be Poisson with
-  λ = n³/4m = 16). The well-behaved generator hugs the dashed Poisson
-  curve. The defective generator is an LCG whose two lowest output bits are
-  stuck at zero — a 22-bit generator in 24-bit clothing, the classic
-  symptom of a power-of-two LCG's short-period low bits. Its outputs live
-  on a grid of step 4, the effective year shrinks to 2²², and K piles up
-  around 4×16 = 64 — an unmissable failure that no frequency test would
-  ever see, since every value is still perfectly equidistributed.
-  Computed live by
+  λ = n³/4m = 16 (dashed grey curve). The defective generator is an LCG
+  whose lowest output bits are stuck at zero — the classic symptom of a
+  power-of-two LCG's short-period low bits — and the slider sets how many.
+  Each stuck bit halves the effective year and doubles the predicted λ′,
+  and the red histogram walks right to meet the moving prediction: 2 bits
+  → K ≈ 64, 3 bits → K ≈ 128. Slide to 0 and the two generators become
+  statistically identical — the defect, not the generator, is what the
+  test sees. No frequency test could catch any of this, since every value
+  remains perfectly equidistributed. Computed live by
   <code>assets/js/viz/birthday.js</code> with the generators in
   <code>assets/js/prng.js</code>.</figcaption>
 </figure>

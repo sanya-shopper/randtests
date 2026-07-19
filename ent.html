@@ -60,13 +60,17 @@ gross failures before you spend compute on the real suites
 <figure class="viz" id="viz-ent">
   <div class="controls"></div>
   <div class="plot"></div>
-  <figcaption><strong>Try it — ENT reimplemented in your browser.</strong>
+  <figcaption><strong>Explore — ENT reimplemented in your browser.</strong>
   The same five statistics (implementation:
   <code>assets/js/stats.js § entStats</code>, following Walker's
-  definitions), computed over 64 KiB from four sources. English text fails
-  everything at a glance. But notice the trap: RANDU — the
+  definitions), computed over 64 KiB, now with per-row verdicts — the
+  chi-square rule is ENT's own; the rest are ±3σ tolerances for this
+  sample size. English text fails everything; the 0.52-biased coin is
+  caught by chi-square alone. Pick <em>your own text</em> and type — watch
+  entropy climb as your prose gets less repetitive, and notice you can't
+  reach 8 bits/byte by typing harder. Then the trap: RANDU — the
   <a href="classical.html#randu">catastrophically broken generator</a> —
-  produces flawless ENT numbers. Five first-order statistics cannot see
+  earns five green check marks. Five first-order statistics cannot see
   lattice structure, which is precisely why ENT is a smoke test and not a
   verdict. Wiring: <code>assets/js/viz/entlive.js</code>.</figcaption>
 </figure>

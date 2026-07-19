@@ -31,7 +31,14 @@ const fmtBytes = (b) => {
 };
 
 export default function init(figure) {
-  mountCanvas(figure.querySelector(".plot"), 0.52, (ctx, w, h, c) => {
+  const readout = document.createElement("output");
+  readout.textContent = "hover a bar for details";
+  figure.querySelector(".controls").appendChild(readout);
+
+  let hover = -1;    // hovered suite row, for highlight + readout
+  let rowGeom = null;
+
+  const { canvas, redraw } = mountCanvas(figure.querySelector(".plot"), 0.52, (ctx, w, h, c) => {
     const pad = { l: 130, r: 76, t: 10, b: 28 };
     const x0 = pad.l, x1 = w - pad.r;
     const rowH = (h - pad.t - pad.b) / SUITES.length;
@@ -56,20 +63,44 @@ export default function init(figure) {
     }
 
     ctx.textBaseline = "middle";
+    rowGeom = { top: pad.t, rowH };
     SUITES.forEach((s, i) => {
       const y = pad.t + i * rowH + rowH / 2;
       const xEnd = xOf(s.bytes);
+      const hot = i === hover;
+      ctx.globalAlpha = hover === -1 || hot ? 1 : 0.45;
       ctx.fillStyle = c.accent;
       ctx.beginPath();
-      ctx.roundRect(x0, y - 5, Math.max(4, xEnd - x0), 10, [0, 4, 4, 0]);
+      ctx.roundRect(x0, y - (hot ? 6 : 5), Math.max(4, xEnd - x0),
+        hot ? 12 : 10, [0, 4, 4, 0]);
       ctx.fill();
       ctx.fillStyle = c.ink2;
-      ctx.font = "12px system-ui, sans-serif";
+      ctx.font = `${hot ? "600 " : ""}12px system-ui, sans-serif`;
       ctx.textAlign = "right";
       ctx.fillText(s.name, x0 - 8, y);
       ctx.textAlign = "left";
       ctx.font = "11px system-ui, sans-serif";
       ctx.fillText(fmtBytes(s.bytes), xEnd + 6, y);
+      ctx.globalAlpha = 1;
     });
+  });
+
+  canvas.addEventListener("pointermove", (e) => {
+    if (!rowGeom) return;
+    const y = e.clientY - canvas.getBoundingClientRect().top;
+    const i = Math.floor((y - rowGeom.top) / rowGeom.rowH);
+    const next = i >= 0 && i < SUITES.length ? i : -1;
+    if (next !== hover) {
+      hover = next;
+      readout.textContent = hover === -1
+        ? "hover a bar for details"
+        : `${SUITES[hover].name}: ~${fmtBytes(SUITES[hover].bytes)} — ${SUITES[hover].note}`;
+      redraw();
+    }
+  });
+  canvas.addEventListener("pointerleave", () => {
+    hover = -1;
+    readout.textContent = "hover a bar for details";
+    redraw();
   });
 }

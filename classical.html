@@ -162,14 +162,17 @@ epitaph: "really horrible"
 <figure class="viz" id="viz-randu">
   <div class="controls"></div>
   <div class="plot"></div>
-  <figcaption><strong>Try it.</strong> 3500 consecutive triples
+  <figcaption><strong>Explore.</strong> Consecutive triples
   (<var>u</var><sub>k</sub>, <var>u</var><sub>k+1</sub>, <var>u</var><sub>k+2</sub>)
-  from RANDU, drawn in the unit cube. Drag to rotate: from most angles the
-  cloud looks perfectly respectable — then the planes snap into view edge-on.
-  That is the whole story of weak testing in one gesture: a defect invisible
-  from almost every direction, obvious from the right one. The spectral test
-  finds the right direction by algebra instead of luck. Toggle to a
-  well-behaved generator for contrast. Rendered by
+  from RANDU, drawn in the unit cube. The cube spins until you grab it —
+  drag and hunt for the angle where the cloud collapses into stripes; the
+  points slider adds density (more points make the planes <em>more</em>
+  obvious, not less: real structure sharpens with data). When you've had
+  enough hunting, <em>reveal the planes</em> computes the edge-on camera
+  angle directly from the plane normal (9, −6, 1) and glides there — which
+  is exactly what the spectral test does: find the worst direction by
+  algebra instead of luck. Toggle to the well-behaved generator and press
+  reveal again — nothing to reveal. Rendered by
   <code>assets/js/viz/randu3d.js</code>; RANDU itself is four lines in
   <code>assets/js/prng.js</code>.</figcaption>
 </figure>

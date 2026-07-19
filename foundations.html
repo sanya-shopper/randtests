@@ -156,12 +156,15 @@ level will eventually "detect" the approximation rather than the generator
 <figure class="viz" id="viz-pvalues">
   <div class="controls"></div>
   <div class="plot"></div>
-  <figcaption><strong>Try it.</strong> Each bar counts p-values from 1000
-  chi-square frequency tests, each on 2000 flips of a simulated coin. Fair
-  coin: the histogram is flat and about 10 of 1000 tests land below
-  α = 0.01 — false alarms, exactly as designed. Nudge the bias to 0.52 and
-  the mass avalanches into the leftmost bin: no single 2000-flip test is
-  sure, but the ensemble is unambiguous. This figure is computed live by
+  <figcaption><strong>Explore.</strong> The tests stream in live: each bar
+  counts p-values from up to 1000 chi-square frequency tests on a simulated
+  coin. With a fair coin the histogram settles flat and about 10 of 1000
+  tests land below α = 0.01 — false alarms, exactly as designed. Now drag
+  the bias slider and watch the mass avalanche into the red bin — then find
+  the <em>detection frontier</em>: at 500 bits/test a 0.52 coin hides
+  comfortably; at 32,000 bits the same coin is condemned by nearly every
+  test. Power grows with sample size — the single most practical fact in
+  randomness testing. Computed live by
   <code>assets/js/viz/pvalues.js</code> using the chi-square machinery in
   <code>assets/js/stats.js</code>.</figcaption>
 </figure>

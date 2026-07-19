@@ -53,19 +53,21 @@ export function biasedBits(p = 0.5, seed = 2) {
 }
 
 /** Defective 24-bit generator for the birthday-spacings demo
- *  (viz/birthday.js): an LCG whose two lowest output bits are stuck at
- *  zero — a 22-bit generator in 24-bit clothing, the classic symptom of a
- *  power-of-two LCG's short-period low bits. All outputs sit on a grid of
- *  step 4, so spacings between sorted samples collide about four times as
- *  often as true randomness allows (effective year m′ = 2²², so the duplicate-
- *  spacing count K jumps from λ = 16 toward λ′ = n³/4m′ = 64), which is
- *  precisely the defect the birthday-spacings test measures.
- *  Returns integers in [0, 2^24) with the low 2 bits always zero.
+ *  (viz/birthday.js): an LCG whose `stuckBits` lowest output bits are
+ *  stuck at zero — a (24−s)-bit generator in 24-bit clothing, the classic
+ *  symptom of a power-of-two LCG's short-period low bits. All outputs sit
+ *  on a grid of step 2^s, so the effective year shrinks to m′ = 2^(24−s)
+ *  and the duplicate-spacing count K jumps from λ = n³/4m toward
+ *  λ′ = 2^s·λ — precisely the defect the birthday-spacings test measures,
+ *  and the dial the demo's severity slider turns.
+ *  Returns integers in [0, 2^24) with the low `stuckBits` bits zero;
+ *  stuckBits = 0 yields an honest (for this purpose) truncated LCG.
  */
-export function weakLcg24(seed = 12345) {
+export function weakLcg24(seed = 12345, stuckBits = 2) {
   let x = seed >>> 0;
+  const mask = (0xffffff & ~((1 << stuckBits) - 1)) >>> 0;
   return () => {
     x = (Math.imul(x, 69069) + 1) >>> 0; // classic 2^32 LCG
-    return (x >>> 8) & 0xfffffc;         // high 24 bits, low 2 forced to 0
+    return (x >>> 8) & mask;             // high 24 bits, low s forced to 0
   };
 }
