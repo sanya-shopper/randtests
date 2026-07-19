@@ -1,51 +1,48 @@
-/* viz/pvalues.js — histogram of p-values from repeated chi-square tests.
+/* viz/pvalues.js — histogram of p-values from repeated chi-square tests,
+ * accumulated live as the tests run.
  *
  * Used by foundations.html § Two-level testing; explained there and in
- * README.md § Visualizations.
+ * README.md § Layout.
  *
- * The experiment: run m = 1000 independent chi-square frequency tests, each
- * on n = 2000 bits from a coin with P(heads) = p, and histogram the m
- * p-values. For a fair coin the histogram is flat (p-values are uniform
- * under the null hypothesis); as bias grows the mass slides toward zero —
- * which is exactly what second-level tests like the NIST uniformity check
- * are built to detect [NIST SP 800-22 §4].
+ * The experiment: run chi-square frequency tests, each on n bits from a
+ * coin with P(1) = p, and histogram the p-values as they stream in. For a
+ * fair coin the histogram settles flat (p-values are uniform under the
+ * null); as bias grows the mass slides into the leftmost bin — exactly
+ * what second-level tests like the NIST uniformity check detect
+ * [NIST SP 800-22 §4]. The bias slider and bits-per-test selector let you
+ * find the detection frontier yourself: small n hides a bias that huge n
+ * makes unmissable, because power grows with sample size.
+ *
+ * Determinism: each run's generator seed is derived from (bias, n, run#),
+ * so a given control setting always replays the same experiment.
  */
 import { biasedBits } from "../prng.js";
 import { chiSquareTest, histogram01 } from "../stats.js";
 import { mountCanvas, yGrid } from "./common.js";
 
-const M = 1000;      // number of repeated tests
-const N = 2000;      // bits per test
+const M = 1000;         // tests per full run
 const BINS = 20;
 const ALPHA = 0.01;
-
-function simulate(p) {
-  const bit = biasedBits(p, 7);
-  const pvalues = new Array(M);
-  for (let t = 0; t < M; t++) {
-    let ones = 0;
-    for (let i = 0; i < N; i++) ones += bit();
-    const { p: pv } = chiSquareTest([ones, N - ones], [N / 2, N / 2]);
-    pvalues[t] = pv;
-  }
-  return pvalues;
-}
+const CHUNK = 40;       // tests simulated per animation frame
 
 export default function init(figure) {
   const controls = figure.querySelector(".controls");
-  const label = document.createElement("label");
-  label.innerHTML =
-    `coin bias P(1) = <select>
-       <option value="0.5" selected>0.500 (fair)</option>
-       <option value="0.51">0.510</option>
-       <option value="0.52">0.520</option>
-       <option value="0.54">0.540</option>
-     </select>`;
-  const out = document.createElement("output");
-  controls.append(label, out);
-  const select = label.querySelector("select");
+  controls.innerHTML = `
+    <label>bias P(1) = <output class="bias-out">0.500</output>
+      <input class="bias" type="range" min="0.500" max="0.560" step="0.002" value="0.500"></label>
+    <label>bits/test <select class="nbits">
+      <option>500</option><option selected>2000</option><option>8000</option><option>32000</option>
+    </select></label>
+    <button class="rerun" type="button">re-run</button>
+    <output class="status"></output>`;
+  const biasEl = controls.querySelector(".bias");
+  const biasOut = controls.querySelector(".bias-out");
+  const nEl = controls.querySelector(".nbits");
+  const status = controls.querySelector(".status");
 
-  let pvalues = simulate(0.5);
+  let pvalues = [];       // accumulates as the animation runs
+  let run = 0;            // bumped by re-run for a fresh (deterministic) seed
+  let bit = null, done = 0, raf = 0;
 
   const { redraw } = mountCanvas(figure.querySelector(".plot"), 0.45,
     (ctx, w, h, c) => {
@@ -58,19 +55,18 @@ export default function init(figure) {
         [0, 0.25, 0.5, 0.75, 1].map((f) => ({ frac: f, value: yMax * f })),
         (v) => Math.round(v), c);
 
-      // bars — thin marks with a 2px gap, rounded data-end
       const bw = (x1 - x0) / BINS;
       for (let i = 0; i < BINS; i++) {
+        if (!bins[i]) continue;
         const bh = (bins[i] / yMax) * (y0 - y1);
-        const x = x0 + i * bw + 1;
         ctx.fillStyle = i === 0 ? c.bad : c.accent; // first bin holds the rejections
         ctx.beginPath();
-        ctx.roundRect(x, y0 - bh, bw - 2, bh, [4, 4, 0, 0]);
+        ctx.roundRect(x0 + i * bw + 1, y0 - bh, bw - 2, bh, [4, 4, 0, 0]);
         ctx.fill();
       }
 
-      // expected-count-per-bin line under H0
-      const yExp = y0 - (M / BINS / yMax) * (y0 - y1);
+      // expected-count-per-bin line under H0, scaled to tests-so-far
+      const yExp = y0 - (pvalues.length / BINS / yMax) * (y0 - y1);
       ctx.strokeStyle = c.ink2;
       ctx.setLineDash([5, 4]);
       ctx.lineWidth = 1.5;
@@ -83,9 +79,8 @@ export default function init(figure) {
       ctx.font = "11px system-ui, sans-serif";
       ctx.textAlign = "right";
       ctx.textBaseline = "bottom";
-      ctx.fillText(`uniform expectation (${M / BINS}/bin)`, x1 - 4, yExp - 3);
+      ctx.fillText("uniform expectation", x1 - 4, yExp - 3);
 
-      // x-axis labels
       ctx.fillStyle = c.muted;
       ctx.textBaseline = "top";
       ctx.textAlign = "left";
@@ -96,14 +91,35 @@ export default function init(figure) {
       ctx.fillText("1", x1, y0 + 6);
     });
 
-  function update() {
-    pvalues = simulate(parseFloat(select.value));
+  function step() {
+    const n = parseInt(nEl.value, 10);
+    for (let t = 0; t < CHUNK && done < M; t++, done++) {
+      let ones = 0;
+      for (let i = 0; i < n; i++) ones += bit();
+      pvalues.push(chiSquareTest([ones, n - ones], [n / 2, n / 2]).p);
+    }
     const rejected = pvalues.filter((v) => v < ALPHA).length;
-    out.textContent =
-      `rejections at α = ${ALPHA}: ${rejected} of ${M} ` +
-      `(expected ≈ ${Math.round(M * ALPHA)} for a fair coin)`;
+    status.textContent =
+      `${pvalues.length}/${M} tests · rejections at α=${ALPHA}: ${rejected} ` +
+      `(≈${Math.round(pvalues.length * ALPHA)} expected if fair)`;
     redraw();
+    if (done < M) raf = requestAnimationFrame(step);
   }
-  select.addEventListener("change", update);
-  update();
+
+  function restart() {
+    cancelAnimationFrame(raf);
+    const p = parseFloat(biasEl.value);
+    biasOut.textContent = p.toFixed(3);
+    // seed derived from the controls + run counter → reproducible runs
+    const seed = 7 + Math.round(p * 1000) * 31 + parseInt(nEl.value, 10) + run * 977;
+    bit = biasedBits(p, seed);
+    pvalues = [];
+    done = 0;
+    raf = requestAnimationFrame(step);
+  }
+
+  biasEl.addEventListener("input", restart);
+  nEl.addEventListener("change", restart);
+  controls.querySelector(".rerun").addEventListener("click", () => { run += 1; restart(); });
+  restart();
 }

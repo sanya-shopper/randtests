@@ -223,3 +223,18 @@ figure.viz .controls button {
 }
 figure.viz .controls button:hover { border-color: var(--accent); }
 figure.viz output { font-variant-numeric: tabular-nums; }
+figure.viz .controls input[type="range"] {
+  width: 130px;
+  accent-color: var(--accent);
+  vertical-align: middle;
+}
+figure.viz .controls select,
+figure.viz textarea {
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--ink);
+  background: var(--page);
+  border: 1px solid var(--baseline);
+  border-radius: 6px;
+}
+figure.viz .controls .hint { color: var(--muted); }

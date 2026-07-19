@@ -62,15 +62,19 @@ worst bias exceeds about 1%
 <figure class="viz" id="viz-avalanche">
   <div class="controls"></div>
   <div class="plot"></div>
-  <figcaption><strong>Try it.</strong> Avalanche matrices computed live
-  (T = 400 samples per input bit, 32-bit functions; cell shade = bias
-  |2p̂−1|, light = ideal). Left, bare multiplication by a constant: carries
-  only propagate upward, so output bit j cannot depend on input bits above
-  j — the dead lower-left triangle is a <em>structural</em> SAC failure no
-  parameter tuning can fix. Right, MurmurHash3's fmix32 finalizer: xor-shifts
-  push information downward, multiplies push it upward, and after three
-  rounds every cell sits near ½. Hover any cell for its exact flip
-  probability. Computed by <code>assets/js/viz/avalanche.js</code>.</figcaption>
+  <figcaption><strong>Explore.</strong> Avalanche matrices computed live
+  (32-bit functions; cell shade = bias |2p̂−1|, light = ideal), with any
+  two mixers from the library side by side. Climb the ladder: adding a
+  constant mixes almost nothing; bare multiplication only carries
+  information upward (dead lower-left triangle); bare xor-shift only
+  pushes it downward; one multiply+shift round is visibly better but
+  biased; fmix32's three alternating rounds saturate the matrix — each
+  structural gap is a SAC failure no parameter tuning can fix. Drop the
+  samples slider to 50 and even fmix32 looks mottled: that is binomial
+  sampling noise, the thing the chi-square machinery above exists to
+  separate from real bias. Hover any cell for its exact flip probability;
+  the worst-cell bias under each panel is SMHasher's headline number.
+  Computed by <code>assets/js/viz/avalanche.js</code>.</figcaption>
 </figure>
 
 <h2 id="bic">Bit independence</h2>
