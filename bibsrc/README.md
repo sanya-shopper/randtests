@@ -1,4 +1,4 @@
-# refs/ — local copies of the bibliography
+# bibsrc/ — local copies of the bibliography
 
 This directory holds local PDF copies of the open-access references cited in
 `docs/bibliography.html`. Populate it with:

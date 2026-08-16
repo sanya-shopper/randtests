@@ -1,13 +1,15 @@
 #!/bin/sh
 # fetch_refs.sh — download local PDF copies of the open-access references
-# cited in docs/bibliography.html into refs/.
+# cited in docs/bibliography.html into ../_refs/randtests/.
+# PDFs are outputs and live outside the repo (CLAUDE.md T1/B1); the map
+# describing them stays in bibsrc/README.md.
 #
 # Run from the repository root:   sh scripts/fetch_refs.sh   (or: make fetch-refs)
 #
 # Only references with a legitimately free PDF are fetched; paywalled items
 # (Knuth's TAOCP, the TestU01 TOMS paper, Webster & Tavares at Springer,
 # and others) are cited by DOI in the bibliography instead — see
-# refs/README.md for the full map.
+# bibsrc/README.md for the full map.
 #
 # Note: the cloud sandbox this project was authored in blocks arbitrary
 # outbound downloads, which is why the PDFs are fetched by script rather
@@ -15,10 +17,10 @@
 
 set -eu
 cd "$(dirname "$0")/.."
-mkdir -p refs
+mkdir -p ../_refs/randtests
 
 fetch() {
-    out="refs/$1"
+    out="../_refs/randtests/$1"
     url="$2"
     if [ -s "$out" ]; then
         echo "have    $out"
@@ -76,4 +78,4 @@ fetch marsaglia-1968-planes.pdf \
 fetch bsi-ais31-v3.pdf \
     "https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Certification/Interpretations/AIS_31_Functionality_classes_for_random_number_generators_e_2024.pdf"
 
-echo "done — see refs/README.md for the reference↔file map"
+echo "done — see bibsrc/README.md for the reference↔file map"

@@ -14,7 +14,7 @@ test:
 serve:
 	cd docs && python3 -m http.server 8000
 
-# Local PDF copies of the open-access bibliography (see refs/README.md).
+# Local PDF copies of the open-access bibliography (see bibsrc/README.md).
 fetch-refs:
 	sh scripts/fetch_refs.sh
 

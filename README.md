@@ -14,7 +14,7 @@ Sibling project of **probsim**
 [site](https://sanya-shopper.github.io/distribs/)) and laid out by its
 conventions: the published site lives in `docs/`, sources and documentation
 cross-reference each other section by section, open-access references are
-fetched into `refs/` by script, and a pre-commit hook keeps the two sides
+fetched into `bibsrc/` by script, and a pre-commit hook keeps the two sides
 honest.
 
 Live site: <https://sanya-shopper.github.io/randtests/>
@@ -53,9 +53,9 @@ Live site: <https://sanya-shopper.github.io/randtests/>
 | `docs/assets/js/viz/defectmap.js` | Defect × test coverage map (accessible HTML table) | index.html |
 | `tests/stats.test.mjs` | Unit tests for stats.js and prng.js against closed forms; SHA-256 balls-into-bins occupancy check | README § Testing |
 | `tests/check-site.mjs` | Structural tests: links, anchors, citations, README↔source sync | README § Testing |
-| `scripts/fetch_refs.sh` | Downloads open-access reference PDFs into `refs/` | refs/README.md |
+| `scripts/fetch_refs.sh` | Downloads open-access reference PDFs into `bibsrc/` | bibsrc/README.md |
 | `scripts/pre-commit` | Git hook: refuse commits that break the sync checks | Makefile § install-hooks |
-| `refs/` | Local copies of open-access reference PDFs (`make fetch-refs`) | refs/README.md |
+| `bibsrc/` | Local copies of open-access reference PDFs (`make fetch-refs`) | bibsrc/README.md |
 
 Each JS module's header comment names the page and section it serves, and
 each page's footer names the modules that draw its figures, so you can read
@@ -66,7 +66,7 @@ the two side by side. `tests/check-site.mjs` enforces the mapping.
 ```sh
 make test          # unit + structural tests (Node ≥ 18)
 make serve         # local preview at http://localhost:8000/
-make fetch-refs    # download open-access reference PDFs into refs/
+make fetch-refs    # download open-access reference PDFs into bibsrc/
 make check-sync    # alias for `make test` — the sync gate
 make install-hooks # install the pre-commit hook (once per clone)
 make deploy        # push docs/ to the gh-pages branch (see below)
@@ -83,7 +83,7 @@ Alternatively set *Settings → Pages → Deploy from a branch → `main` /
 - **Citations.** In-text citations are `<a class="cite"
   href="bibliography.html#key">[Author Year]</a>`; the key is the entry's
   `id` in `docs/bibliography.html`. Open-access entries have a local-PDF
-  counterpart mapped in `refs/README.md`.
+  counterpart mapped in `bibsrc/README.md`.
 - **Figures.** Each interactive figure is a `<figure class="viz"
   id="viz-name">` with `.controls` and `.plot` children; a module in
   `docs/assets/js/viz/` exports `default init(figure)` and is imported by a
