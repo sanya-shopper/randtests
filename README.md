@@ -47,10 +47,11 @@ Live site: <https://sanya-shopper.github.io/randtests/>
 | `docs/assets/js/viz/entlive.js` | ENT's five statistics computed in-browser | ent.html |
 | `docs/assets/js/viz/avalanche.js` | Avalanche matrices, selectable mixer library | hashing.html |
 | `docs/assets/js/viz/collisions.js` | Birthday-bound explorer: expected vs observed collisions | hashing.html |
+| `docs/assets/js/viz/binballs.js` | Balls-into-bins: SHA-256 digest bytes as 32 bins, z-scores + χ² verdict | hashing.html |
 | `docs/assets/js/viz/twolevel.js` | Dieharder-style second-level KS verdicts on streamed p-values | dieharder.html |
 | `docs/assets/js/viz/streamfail.js` | PractRand-style doubling checkpoints: bits until failure | practrand.html |
 | `docs/assets/js/viz/defectmap.js` | Defect × test coverage map (accessible HTML table) | index.html |
-| `tests/stats.test.mjs` | Unit tests for stats.js and prng.js against closed forms | README § Testing |
+| `tests/stats.test.mjs` | Unit tests for stats.js and prng.js against closed forms; SHA-256 balls-into-bins occupancy check | README § Testing |
 | `tests/check-site.mjs` | Structural tests: links, anchors, citations, README↔source sync | README § Testing |
 | `scripts/fetch_refs.sh` | Downloads open-access reference PDFs into `refs/` | refs/README.md |
 | `scripts/pre-commit` | Git hook: refuse commits that break the sync checks | Makefile § install-hooks |
