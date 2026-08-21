@@ -126,6 +126,33 @@ equidistribution tests</a> wearing hash-function clothes.</p>
   <code>assets/js/viz/collisions.js</code>.</figcaption>
 </figure>
 
+<p>Occupancy can also be read <em>inside</em> a single digest. View SHA-256's
+32-byte output as 32 bins — one per byte position — and every hash throws
+8 balls (its set bits) at each bin. Over N digests a bin should collect
+Binomial(8N, ½) set bits; a bin that runs systematically hot or cold would
+mean the function favors certain output positions. Each bin's deviation is
+a z-score, and the sum of their squares is chi-square with 32 degrees of
+freedom (<a href="foundations.html#chisquare">foundations § chi-square</a>;
+the χ² distribution itself is next on the docket at the sibling
+<a href="https://sanya-shopper.github.io/distribs/">probsim</a> project).
+The unit test <code>tests/stats.test.mjs</code> runs exactly this check on
+the same messages, stuck-bit power check included.</p>
+
+<figure class="viz" id="viz-binballs">
+  <div class="controls"></div>
+  <div class="plot"></div>
+  <figcaption><strong>Explore — balls into bins, one bar per byte.</strong>
+  N counter messages hashed with real SHA-256 (via
+  <code>crypto.subtle</code>); each bar is one byte position's set-bit
+  count as a z-score against the Binomial(8N, ½) expectation, with ±2σ and
+  ±3σ guides and the 32-df chi-square verdict above. Hover a bar for its
+  raw counts. With a fair hash a few bars near ±2σ are <em>expected</em> —
+  that is what uniform occupancy looks like. Switch the source to the
+  pinned-bit variant to watch bin 0 escape the band and the p-value
+  collapse: one stuck output bit is all it takes. Computed live by
+  <code>assets/js/viz/binballs.js</code>.</figcaption>
+</figure>
+
 <h2 id="smhasher">SMHasher and its descendants</h2>
 <p>Austin Appleby's SMHasher (~2010) did for non-cryptographic hashes what
 <a href="diehard.html">Diehard</a> did for generators: packaged the
@@ -243,17 +270,20 @@ asymmetry</a>, with an adversary attached.
 
 </main>
 <footer class="site">
-  <p>Figures on this page: <code>assets/js/viz/avalanche.js</code> and
-  <code>assets/js/viz/collisions.js</code> — see README § Layout. Citations
+  <p>Figures on this page: <code>assets/js/viz/avalanche.js</code>,
+  <code>assets/js/viz/collisions.js</code> and
+  <code>assets/js/viz/binballs.js</code> — see README § Layout. Citations
   link into the <a href="bibliography.html">bibliography</a>.</p>
   <p>Source: <a href="https://github.com/sanya-shopper/randtests">github.com/sanya-shopper/randtests</a> — layout map in the <a href="https://github.com/sanya-shopper/randtests#layout">README</a>. Sibling project: <a href="https://sanya-shopper.github.io/distribs/">probsim</a>.</p>
-  <p>Last updated 2026-08-01.</p>
+  <p>Last updated 2026-08-02.</p>
 </footer>
 <script type="module">
   import initAvalanche from "./assets/js/viz/avalanche.js";
   import initCollisions from "./assets/js/viz/collisions.js";
+  import initBinballs from "./assets/js/viz/binballs.js";
   initAvalanche(document.getElementById("viz-avalanche"));
   initCollisions(document.getElementById("viz-collisions"));
+  initBinballs(document.getElementById("viz-binballs"));
 </script>
 </body>
 </html>

@@ -8,9 +8,12 @@
  *   - the 95th percentile of χ²₁ is 3.841, of χ²₁₀ is 18.307
  * The RANDU test verifies the exact algebraic defect the site demonstrates
  * (classical.html § RANDU): x_{k+2} ≡ 6·x_{k+1} − 9·x_k (mod 2³¹).
+ * The SHA-256 test exercises the chi-square machinery on a real hash:
+ * balls-into-bins over the digest's 32 byte positions.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 
 import {
   lnGamma, gammaP, chi2PValue, chiSquareTest, entStats, histogram01,
@@ -115,6 +118,45 @@ test("entStats flags text and accepts uniform bytes", () => {
   const t = entStats(text);
   assert.ok(t.entropy < 5, `text entropy should be low, got ${t.entropy}`);
   assert.ok(t.chi2P < 1e-6, "text should fail the chi-square test");
+});
+
+test("SHA-256 spreads set bits evenly over its 32 byte bins", () => {
+  // Balls-into-bins on real digests (hashing.html § Collision statistics:
+  // "distribution tests do the same for bucket occupancy via chi-square").
+  // View each 32-byte digest as 32 bins and count the set bits each bin
+  // receives. Over N digests a bin holds Binomial(8N, ½) set bits, so its
+  // ones/zeros split is a 2-cell chi-square contributing 1 df; all 32 bins
+  // together give 32 df. The χ² distribution itself will be covered by the
+  // sibling probsim project (github.com/sanya-shopper/distribs);
+  // foundations.html § Pearson's chi-square has the working summary.
+  const N = 2000, BINS = 32;
+  const occupancyP = (digests) => {
+    const ones = new Array(BINS).fill(0);
+    for (const d of digests) {
+      for (let b = 0; b < BINS; b++) {
+        for (let byte = d[b]; byte; byte >>= 1) ones[b] += byte & 1;
+      }
+    }
+    const trials = 8 * digests.length; // bits thrown at each bin
+    const observed = ones.flatMap((o) => [o, trials - o]);
+    const expected = new Array(2 * BINS).fill(trials / 2);
+    return chiSquareTest(observed, expected, BINS).p;
+  };
+
+  const digests = Array.from({ length: N }, (_, i) =>
+    createHash("sha256").update(`randtests balls-into-bins ${i}`).digest());
+  const p = occupancyP(digests);
+  assert.ok(p > 0.001, `SHA-256 bin occupancy rejected, p=${p}`);
+
+  // Power check: pin one bit in bin 0 and the same test must reject —
+  // otherwise the pass above proves nothing.
+  const pinned = digests.map((d) => {
+    const c = Uint8Array.from(d);
+    c[0] |= 1;
+    return c;
+  });
+  const pPinned = occupancyP(pinned);
+  assert.ok(pPinned < 1e-6, `stuck bit should fail decisively, p=${pPinned}`);
 });
 
 test("kolmogorovQ matches standard KS critical values", () => {
