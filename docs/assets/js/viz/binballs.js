@@ -97,7 +97,7 @@ export default function init(figure) {
       const zMax = Math.max(4.5, ...zs.map(Math.abs)) * 1.15;
       const yOf = (z) => yc - (z / zMax) * (yBot - yTop) / 2;
 
-      // ±2σ and ±3σ guides, labeled on the axis (site-style dashed _refs).
+      // ±2σ and ±3σ guides, labeled on the axis (site-style dashed reference lines).
       ctx.font = "11px system-ui, sans-serif";
       ctx.textAlign = "right"; ctx.textBaseline = "middle";
       for (const g of [2, 3]) {
