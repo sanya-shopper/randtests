@@ -1,18 +1,22 @@
-# bibsrc/ — local copies of the bibliography
+# bibsrc/ — the bibliography's local-PDF map
 
-This directory holds local PDF copies of the open-access references cited in
-`docs/bibliography.html`. Populate it with:
+This directory maps the open-access references cited in
+`docs/bibliography.html` to local PDF copies. The PDFs themselves live
+outside the repo, in `../_refs/randtests/` (created on first run). Fetch
+them with:
 
 ```sh
 sh scripts/fetch_refs.sh     # or: make fetch-refs
 ```
 
-(The PDFs are not committed: the cloud sandbox in which this repository was
-authored blocks arbitrary outbound downloads, and re-fetching from the
-canonical sources keeps the repo small and the provenance clean. The layout
-and rationale mirror the sibling probsim project.)
+(The PDFs are not committed: they are fetched outputs, kept outside the
+working tree, and re-fetching from the canonical sources keeps the repo
+small and the provenance clean. The cloud sandbox in which this repository
+was authored blocks arbitrary outbound downloads; on an ordinary machine
+the script just works. The layout and rationale mirror the sibling probsim
+project.)
 
-## What lands here, and what cannot
+## What lands in `../_refs/randtests/`, and what cannot
 
 | File | Reference (bibliography id) | Status |
 |---|---|---|
